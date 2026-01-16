@@ -37,7 +37,7 @@ const CARDS = [
         copies: 2,
         image: 'images/kn_fab_raid.png',
         style: '銅版画風',
-        effect: '相手のイコン1体を破壊する。それが保持していたなら、破壊後に強奪する。'
+        effect: '相手のイコン1体を破壊する。それがマクガフィンを保持していたなら、破壊後に強奪する。'
     },
     {
         id: 'kn_fab_march',

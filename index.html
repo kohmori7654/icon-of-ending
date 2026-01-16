@@ -3,14 +3,14 @@
 
 <head>
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LFBMCNMKT2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LFBMCNMKT2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-  gtag('config', 'G-LFBMCNMKT2');
-</script>
+        gtag('config', 'G-LFBMCNMKT2');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>終焉のイコン - Icons of the End</title>
@@ -196,7 +196,7 @@
         .game-screen {
             display: none;
             flex-direction: column;
-            height: 100vh;
+            min-height: 100vh;
             background: url('images/game_BG.png') no-repeat center center/cover;
             position: relative;
         }
@@ -1334,6 +1334,148 @@
             border: 2px dashed var(--gold) !important;
             animation: pulse 1.5s infinite;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .start-title {
+                font-size: 2.2rem;
+                text-align: center;
+            }
+
+            .game-header {
+                padding: 5px 10px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header-stats {
+                width: 100%;
+                justify-content: space-around;
+                gap: 5px;
+            }
+
+            .clock-value {
+                font-size: 1.4rem;
+            }
+
+            /* Adjust Board Layout */
+            .game-board {
+                padding: 5px;
+            }
+
+            .field-slots {
+                gap: 5px;
+                min-height: 150px;
+            }
+
+            .field-slot {
+                width: 85px;
+                height: 145px;
+            }
+
+            /* Resize Cards */
+            .card {
+                width: 80px;
+                height: 140px;
+                border-width: 1px;
+            }
+
+            .card-name {
+                font-size: 0.55rem;
+            }
+
+            .card-stats {
+                font-size: 0.65rem;
+            }
+
+            .card:hover {
+                transform: translateY(-5px) scale(1.02);
+            }
+
+            /* Center Area */
+            .macguffin-display {
+                width: 60px;
+                /* Reduced from 80px */
+                height: 60px;
+            }
+
+            .macguffin-img {
+                width: 40px;
+                /* Reduced from 60px */
+                height: 40px;
+            }
+
+            /* Hand Section */
+            .hand-section {
+                padding: 10px;
+            }
+
+            .hand-and-controls {
+                flex-direction: column;
+            }
+
+            .controls {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+                order: -1;
+                /* Place controls above hand for easier reach */
+                margin-bottom: 10px;
+            }
+
+            .action-btn {
+                flex: 1;
+                padding: 10px;
+                font-size: 0.8rem;
+            }
+
+            /* Modals */
+            .modal-content {
+                width: 90%;
+                padding: 15px;
+            }
+
+            /* Guide */
+            .guide-sections {
+                grid-template-columns: 1fr;
+            }
+
+            /* Log Container Positioning for Mobile */
+            #log-container {
+                top: auto !important;
+                bottom: 0 !important;
+                right: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                transform: none !important;
+                border-radius: 0 !important;
+            }
+
+            #action-log {
+                height: 80px !important;
+                border-radius: 0 !important;
+                border-left: none !important;
+                border-right: none !important;
+            }
+
+            #log-container>div:last-child {
+                border-radius: 0 !important;
+                border-left: none !important;
+                border-right: none !important;
+                padding-bottom: env(safe-area-inset-bottom) !important;
+                /* iPhone X+ support */
+            }
+
+            /* Prevent content from being hidden behind the log */
+            .draft-screen {
+                padding-bottom: 180px;
+            }
+
+            /* Apply to Hand Section: Ensure controls are visible */
+            .hand-section {
+                padding-bottom: 200px;
+            }
+        }
     </style>
 </head>
 
@@ -2293,7 +2435,7 @@
                 gameState.draftPickingLocked = false;
 
                 document.getElementById('player-deck-count').textContent = gameState.player.deck.length;
-                logAction(`あなたが【${card.name}】をピック`);
+                logAction(`あなたが${card.name}をピック`);
 
                 // 13枚目強制チェック
                 if (gameState.player.deck.length === 12) {
@@ -2431,7 +2573,7 @@
                 gameState.draftPickingLocked = false;
 
                 document.getElementById('cpu-deck-count').textContent = gameState.cpu.deck.length;
-                logAction(`CPUが【${pick.name}】をピック`);
+                logAction(`CPUが${pick.name}をピック`);
 
                 // Switch back to player turn
                 gameState.draftTurn = 'player';
@@ -2510,7 +2652,7 @@
             if (queens.length > 0) {
                 // ... (keep logic) ...
                 if (gameState.player.hand.length > 0) {
-                    const result = await showCustomConfirm("【盤上を統べる女王】の効果", "手札1枚を破棄して、次のターンまで相手の強奪を封じますか？");
+                    const result = await showCustomConfirm("盤上を統べる女王の効果", "手札1枚を破棄して、次のターンまで相手の強奪を封じますか？");
                     if (result) {
                         const disc = gameState.player.hand.pop();
                         gameState.player.discard.push(disc);
@@ -2609,7 +2751,7 @@
             while (player.hand.length > limit) {
                 const discarded = player.hand.pop();
                 player.discard.push(discarded);
-                logAction(`${who === 'player' ? 'あなた' : 'CPU'}が【${discarded.name}】を消費`);
+                logAction(`${who === 'player' ? 'あなた' : 'CPU'}が${discarded.name}を消費`);
             }
 
             // 1ターン目のみ：手札配布のタイミング保証 (バグ修正)
@@ -2714,7 +2856,7 @@
                     const icon = icons[0];
                     playCard(icon);
                     cpu.field.push(icon);
-                    logAction(`CPUが【${icon.name}】を展開`);
+                    logAction(`CPUが${icon.name}を展開`);
                     return true;
                 }
                 return false;
@@ -2727,7 +2869,7 @@
                     const fabula = fabulas[0];
                     playCard(fabula);
                     cpu.discard.push(fabula);
-                    logAction(`CPUが【${fabula.name}】を発動`);
+                    logAction(`CPUが${fabula.name}を発動`);
                     try {
                         await resolveEffect(fabula, 'cpu');
                     } catch (e) { console.error(e); }
@@ -2742,8 +2884,8 @@
                 const cpuHoldsIt = cpu.field.some(c => c && c.uid === gameState.macguffin.holder);
                 if (cpuHoldsIt) return false;
 
-                // 先攻1ターン目は強奪禁止
-                if (gameState.turnCount === 1 && gameState.firstPlayer === 'cpu') return false;
+                // 先攻1ターン目は強奪禁止 (turnCount 0 or 1 handles initial state)
+                if ((gameState.turnCount === 0 || gameState.turnCount === 1) && gameState.firstPlayer === 'cpu') return false;
 
                 if (gameState.snatchBlocked) return false;
                 if (cpu.field.length === 0) return false;
@@ -2775,7 +2917,7 @@
                         const oldHolder = gameState.macguffin.holder;
                         animateMacGuffinMove(oldHolder, cpuIcon.uid, () => {
                             gameState.macguffin.holder = cpuIcon.uid;
-                            logAction(`CPUがマクガフィンを強奪！【${cpuIcon.name}】が保持`);
+                            logAction(`CPUがマクガフィンを強奪！${cpuIcon.name}が保持`);
                             flashScreen('red');
                             renderAll();
                         });
@@ -2797,7 +2939,7 @@
                     const icon = icons[0];
                     playCard(icon);
                     cpu.field.push(icon);
-                    logAction(`CPUが【${icon.name}】を展開`);
+                    logAction(`CPUが${icon.name}を展開`);
                     renderAll();
                     setTimeout(cpuTakeTurn, 1500); // Continue turn
                     return;
@@ -2822,7 +2964,7 @@
                     const icon = icons[0];
                     playCard(icon);
                     cpu.field.push(icon);
-                    logAction(`CPUが【${icon.name}】を追加展開`);
+                    logAction(`CPUが${icon.name}を追加展開`);
                     renderAll();
                     setTimeout(cpuTakeTurn, 1500);
                     return;
@@ -3062,10 +3204,10 @@
                     msg.textContent = `マクガフィンを強奪しますか？`;
                 } else if (action.type === 'summon') {
                     title.textContent = '召喚の確認';
-                    msg.textContent = `【${name}】を召喚しますか？`;
+                    msg.textContent = `${name}を召喚しますか？`;
                 } else {
                     title.textContent = '発動の確認';
-                    msg.textContent = `【${name}】を発動しますか？`;
+                    msg.textContent = `${name}を発動しますか？`;
                 }
             }
 
@@ -3107,14 +3249,14 @@
                     // Move card from hand to field
                     gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
                     gameState.player.field.push(action.card);
-                    logAction(`【${action.card.name}】を召喚`);
+                    logAction(`${action.card.name}を召喚`);
 
                     renderAll(); // Render after data update
 
                     // Commander (kn_icon_commander) Trigger
                     if (action.card.id === 'kn_icon_commander') {
                         if (gameState.player.hand.length > 0) {
-                            const result = await showCustomConfirm("【前線指揮官】効果", "手札1枚を消費してコスト0で強奪を行いますか？");
+                            const result = await showCustomConfirm("前線指揮官の効果", "手札1枚を消費してコスト0で強奪を行いますか？");
                             if (result) {
                                 const disc = gameState.player.hand.pop();
                                 gameState.player.discard.push(disc);
@@ -3132,7 +3274,7 @@
                 // Move card from hand to discard and resolve effect
                 gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
                 gameState.player.discard.push(action.card);
-                logAction(`【${action.card.name}】を発動`);
+                logAction(`${action.card.name}を発動`);
                 renderAll();
                 await resolveEffect(action.card, 'player');
 
@@ -3157,7 +3299,7 @@
         function initiateCardPlayFromDrop(card) {
             // 同名ファブラ制限チェック
             if (card.type === 'fabula' && gameState.fabulasUsedThisTurn.includes(card.id)) {
-                showCustomAlert('使用制限', `【${card.name}】は1ターンに1回しか使用できません。`);
+                showCustomAlert('使用制限', `${card.name}は1ターンに1回しか使用できません。`);
                 return;
             }
 
@@ -3179,7 +3321,8 @@
                 showConfirmModal();
             } else {
                 // 通常のコスト選択フロー
-                showInstruction(`【${card.name}】を使用します。コストを選択してください (${card.cost}枚)`);
+                const actionVerb = card.type === 'icon' ? '召喚' : '発動';
+                showInstruction(`${card.name}を${actionVerb}<br>コストを選択してください (${card.cost}枚)`);
                 gameState.waitingForAction = 'cost_payment';
                 gameState.selectedCards = [];
                 updateActionButton();
@@ -3190,7 +3333,7 @@
         function showInstruction(text) {
             const popup = document.getElementById('instruction-popup');
             if (popup) {
-                popup.textContent = text;
+                popup.innerHTML = text; // Enable HTML for <br>
                 popup.classList.add('active');
             }
         }
@@ -3558,7 +3701,7 @@
                 // Add Animation
                 animateMacGuffinMove(oldHolder, targetIcon.uid, () => {
                     gameState.macguffin.holder = targetIcon.uid;
-                    logAction(`マクガフィンを強奪し【${targetIcon.name}】が保持しました！`);
+                    logAction(`マクガフィンを強奪し${targetIcon.name}が保持しました！`);
                     flashScreen('flash-snatch');
                     gameState.lastActionCompletedTime = Date.now(); // アクション完了時刻を記録
                     gameState.snatchInProgress = false; // 強奪処理終了
@@ -3608,7 +3751,7 @@
                     if (gameState[opponent].field.length > 0) {
                         const target = gameState[opponent].field[gameState[opponent].field.length - 1]; // Last usually
                         if (target.id === 'cl_icon_bishop') {
-                            logAction('対象が【鎮魂の司教】のため効果無効');
+                            logAction('対象が鎮魂の司教のため効果無効');
                         } else {
                             const wasHolder = (gameState.macguffin.holder === target.uid);
                             if (destroyCard(target, opponent, 'effect')) {
@@ -3618,7 +3761,7 @@
                                         // Animation from Center (since destroyed) -> MyIcon
                                         animateMacGuffinMove(null, myIcons[0].uid, () => {
                                             gameState.macguffin.holder = myIcons[0].uid;
-                                            logAction(`マクガフィンを強奪し【${myIcons[0].name}】に装備！`);
+                                            logAction(`マクガフィンを強奪し${myIcons[0].name}に装備！`);
                                             renderAll();
                                         });
                                     }
@@ -3651,7 +3794,7 @@
                             const icon = iconsInDiscard.pop();
                             gameState[owner].discard = gameState[owner].discard.filter(c => c.uid !== icon.uid);
                             gameState[owner].field.push(icon);
-                            logAction(`捨て札から【${icon.name}】を場に出した`);
+                            logAction(`捨て札から${icon.name}を場に出した`);
 
                             if (owner === 'player') {
                                 if (await showCustomConfirm("効果発動", "マクガフィンを移動させますか？")) {
@@ -3669,7 +3812,13 @@
                                     renderAll();
                                 });
                             }
+                        } else {
+                            if (owner === 'player') await showCustomAlert('対象なし', '捨て札にイコンがありません');
+                            else console.log('CPU: 捨て札にイコンがなく不発');
                         }
+                    } else {
+                        if (owner === 'player') await showCustomAlert('対象なし', '捨て札がありません');
+                        else console.log('CPU: 捨て札がなく不発');
                     }
                     break;
 
@@ -3678,7 +3827,7 @@
                     const saintActive = allField.some(c => c && c.id === 'cl_icon_saint');
 
                     if (saintActive) {
-                        logAction('【終焉を嘆く聖女】により破棄が無効化されました');
+                        logAction('終焉を嘆く聖女により破棄が無効化されました');
                         // Fallback to destroy logic?
                         // Logic: "Consume 2, if CANNOT, destroy 1".
                         // If Discard is blocked by Saint, we CANNOT consume. So we attempt destroy.
@@ -3723,6 +3872,8 @@
                         } else {
                             logAction('相手がマクガフィンを持っていません');
                         }
+                    } else {
+                        logAction('マクガフィンは誰にも保持されていません');
                     }
                     break;
 
@@ -3739,18 +3890,18 @@
                                     animateMacGuffinMove(oldHolder, null, () => {
                                         gameState[opponent].field.pop(); // Assumes target is last? YES (line 2894)
                                         gameState[opponent].hand.push(target);
-                                        logAction(`【${target.name}】を手札に戻した`);
+                                        logAction(`${target.name}を手札に戻した`);
                                         gameState.macguffin.holder = null;
                                         renderAll();
                                     });
                                 } else {
                                     gameState[opponent].field.pop();
                                     gameState[opponent].hand.push(target);
-                                    logAction(`【${target.name}】を手札に戻した`);
+                                    logAction(`${target.name}を手札に戻した`);
                                 }
                             }
                         } else {
-                            logAction('対象が【鎮魂の司教】のため効果無効');
+                            logAction('対象が鎮魂の司教のため効果無効');
                         }
                     }
                     break;
@@ -3760,24 +3911,24 @@
         function destroyCard(target, owner, source) {
             // Prayer Protection
             if (gameState[owner].protectedUntilNextTurn) {
-                logAction(`【${target.name}】は加護により破壊を免れた`);
+                logAction(`${target.name}は加護により破壊を免れた`);
                 return false;
             }
 
             // Guardian Knight Check
             if (target.id === 'kn_icon_guardian' && gameState[owner].hand.length > 0) {
                 if (owner === 'player') {
-                    if (confirm(`【${target.name}】が破壊されます。手札1枚を消費して身代わりにしますか？`)) {
+                    if (confirm(`${target.name}が破壊されます。手札1枚を消費して身代わりにしますか？`)) {
                         const disc = gameState.player.hand.pop();
                         gameState.player.discard.push(disc);
-                        logAction(`手札を消費し【${target.name}】の破壊を無効化`);
+                        logAction(`手札を消費し${target.name}の破壊を無効化`);
                         return false;
                     }
                 } else {
                     if (Math.random() > 0.2) {
                         const disc = gameState[owner].hand.pop();
                         gameState[owner].discard.push(disc);
-                        logAction(`CPUは手札を消費して【${target.name}】を守った`);
+                        logAction(`CPUは手札を消費して${target.name}を守った`);
                         return false;
                     }
                 }
@@ -3788,7 +3939,7 @@
             if (idx > -1) {
                 gameState[owner].field.splice(idx, 1);
                 gameState[owner].discard.push(target);
-                logAction(`【${target.name}】は破壊された`);
+                logAction(`${target.name}は破壊された`);
                 if (gameState.macguffin.holder === target.uid) {
                     const oldHolder = gameState.macguffin.holder;
                     // Fire-and-forget animation
@@ -3826,7 +3977,7 @@
                 // Add Animation
                 animateMacGuffinMove(oldHolder, targetIcon.uid, () => {
                     gameState.macguffin.holder = targetIcon.uid;
-                    logAction(`マクガフィンを強奪し【${targetIcon.name}】が保持しました！`);
+                    logAction(`マクガフィンを強奪し${targetIcon.name}が保持しました！`);
                     flashScreen('flash-snatch');
                     gameState.waitingForAction = null;
                     gameState.lastActionCompletedTime = Date.now(); // アクション完了時刻を記録
@@ -3905,9 +4056,9 @@
                 // Clicking Enemy Icon
                 if (gameState.waitingForAction === 'revolutionary_target_selection') {
                     // Execute Revolutionary Effect
-                    const result = await showCustomConfirm('十二の芝む崋の待つ', `【${card.name}】の効果を無効化しますか？`);
+                    const result = await showCustomConfirm('十二の芝む崋の待つ', `${card.name}の効果を無効化しますか？`);
                     if (result) {
-                        logAction(`革命家の効果により【${card.name}】の効果が無効化されました`);
+                        logAction(`革命家の効果により${card.name}の効果が無効化されました`);
                         hideInstruction();
                         gameState.waitingForAction = null;
                         renderAll();
@@ -3916,10 +4067,10 @@
                 // Raid Target Selection
                 if (gameState.waitingForAction === 'raid_target_selection') {
                     if (card.id === 'cl_icon_bishop') {
-                        await showCustomConfirm('選択不可', '【鎮魂の司教】は効果の対象に選べません');
+                        await showCustomConfirm('選択不可', '鎮魂の司教は効果の対象に選べません');
                         return;
                     }
-                    const result = await showCustomConfirm('破壊確認', `【${card.name}】を破壊しますか？`);
+                    const result = await showCustomConfirm('破壊確認', `${card.name}を破壊しますか？`);
                     if (result) {
                         destroyCard(card, 'cpu', 'effect');
                         hideInstruction();
@@ -3943,12 +4094,12 @@
             }
 
             if (gameState.waitingForAction === 'snatch_target_selection') {
-                const result = await showCustomConfirm('強奪確認', `【${card.name}】にマクガフィンを保持させますか？`);
+                const result = await showCustomConfirm('強奪確認', `${card.name}にマクガフィンを保持させますか？`);
                 if (result) {
                     const oldHolder = gameState.macguffin.holder;
                     await animateMacGuffinMove(oldHolder, card.uid, () => {
                         gameState.macguffin.holder = card.uid;
-                        logAction(`マクガフィンを強奪し【${card.name}】が保持しました！`);
+                        logAction(`マクガフィンを強奪し${card.name}が保持しました！`);
                         flashScreen('flash-snatch');
                         hideInstruction();
                         gameState.waitingForAction = null;
@@ -3968,7 +4119,7 @@
             } else if (gameState.waitingForAction === null && gameState.currentPlayer === 'player') {
                 // Active Skill Trigger: Revolutionary
                 if (card.id === 'pe_icon_patriot') { // 名もなき革命家
-                    const result = await showCustomConfirm('効果発動', '【名もなき革命家】の効果を発動しますか？\n（相手イコンの効果を無効化）');
+                    const result = await showCustomConfirm('効果発動', '名もなき革命家の効果を発動しますか？\n（相手イコンの効果を無効化）');
                     if (result) {
                         showInstruction('無効化する相手のイコンを選択してください');
                         gameState.waitingForAction = 'revolutionary_target_selection';
@@ -4266,14 +4417,14 @@
                 div.classList.add('has-macguffin');
             }
 
-            div.title = `【${card.name}】\n${card.effect}\nコスト: ${card.cost} / 時計: ${card.clock >= 0 ? '+' : ''}${card.clock} / 因果律: ${card.influence}`;
+            div.title = `${card.name}\n${card.effect}\nコスト: ${card.cost} / 時計: ${card.clock >= 0 ? '+' : ''}${card.clock} / 因果律: ${card.influence}`;
 
             div.innerHTML = `
             <div class="card-image ${card.faction}">
                 ${card.image ? `<img src="${card.image}" alt="${card.name}" onerror="this.style.display='none';this.parentElement.textContent='${card.style}'">` : card.style}
             </div>
             <div class="card-body">
-                <div class="card-name">【${card.name}】</div>
+                <div class="card-name">${card.name}</div>
                 <div class="card-type">${card.type === 'icon' ? 'イコン' : 'ファブラ'}</div>
                 <div class="card-stats">
                     ${card.cost} / ${card.clock} / ${card.influence}
@@ -4975,6 +5126,5 @@
     </script>
 
 </body>
-
 
 </html>
