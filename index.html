@@ -2116,7 +2116,7 @@
                         <p>コスト分の手札を選択</p>
                     </div>
                     <div class="guide-step"><span class="step-num">3</span>
-                        <p>「召喚」ボタンをクリック</p>
+                        <p>「登壇」ボタンをクリック</p>
                     </div>
                 </div>
                 <div class="guide-section">
@@ -3206,8 +3206,8 @@
                     title.textContent = '強奪の確認';
                     msg.textContent = `マクガフィンを強奪しますか？`;
                 } else if (action.type === 'summon') {
-                    title.textContent = '召喚の確認';
-                    msg.textContent = `${name}を召喚しますか？`;
+                    title.textContent = '登壇の確認';
+                    msg.textContent = `${name}を登壇しますか？`;
                 } else {
                     title.textContent = '発動の確認';
                     msg.textContent = `${name}を発動しますか？`;
@@ -3252,7 +3252,7 @@
                     // Move card from hand to field
                     gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
                     gameState.player.field.push(action.card);
-                    logAction(`${action.card.name}を召喚`);
+                    logAction(`${action.card.name}を登壇`);
 
                     renderAll(); // Render after data update
 
@@ -3324,7 +3324,7 @@
                 showConfirmModal();
             } else {
                 // 通常のコスト選択フロー
-                const actionVerb = card.type === 'icon' ? '召喚' : '発動';
+                const actionVerb = card.type === 'icon' ? '登壇' : '発動';
                 showInstruction(`${card.name}を${actionVerb}<br>コストを選択してください (${card.cost}枚)`);
                 gameState.waitingForAction = 'cost_payment';
                 gameState.selectedCards = [];
@@ -3408,8 +3408,8 @@
                     titleEl.textContent = '強奪の確認';
                     msgEl.textContent = `マクガフィンを強奪しますか？`;
                 } else if (action.type === 'summon') {
-                    titleEl.textContent = '召喚の確認';
-                    msgEl.textContent = `【${name}】を召喚しますか？`;
+                    titleEl.textContent = '登壇の確認';
+                    msgEl.textContent = `【${name}】を登壇しますか？`;
                 } else {
                     titleEl.textContent = '発動の確認';
                     msgEl.textContent = `【${name}】を発動しますか？`;
@@ -3475,7 +3475,7 @@
                             // Move card from hand to field
                             gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
                             gameState.player.field.push(action.card);
-                            logAction(`【${action.card.name}】を召喚`);
+                            logAction(`【${action.card.name}】を登壇`);
 
                             renderAll(); // Render after data update
 
@@ -4081,7 +4081,7 @@
                         renderAll();
                     }
                 }
-                return;
+                return true; // Action taken
             }
 
             // Clicking My Icon
@@ -4093,7 +4093,7 @@
                 }
                 toggleCardSelection(card);
                 renderAll();
-                return;
+                return true; // Action taken
             }
 
             if (gameState.waitingForAction === 'snatch_target_selection') {
@@ -4119,17 +4119,9 @@
                     gameState.lastActionCompletedTime = Date.now();
                     renderAll(); // キャンセル後の状態を反映して再描画
                 }
-            } else if (gameState.waitingForAction === null && gameState.currentPlayer === 'player') {
-                // Active Skill Trigger: Revolutionary
-                if (card.id === 'pe_icon_patriot') { // 名もなき革命家
-                    const result = await showCustomConfirm('効果発動', '名もなき革命家の効果を発動しますか？\n（相手イコンの効果を無効化）');
-                    if (result) {
-                        showInstruction('無効化する相手のイコンを選択してください');
-                        gameState.waitingForAction = 'revolutionary_target_selection';
-                        renderAll();
-                    }
-                }
+                return true; // Action taken
             }
+            return false; // No action taken
         }
         // === 自動テストプレイ機能 ===
         let autoTestActive = false;
@@ -4420,7 +4412,12 @@
                 div.classList.add('has-macguffin');
             }
 
-            div.title = `${card.name}\n${card.effect}\nコスト: ${card.cost} / 時計: ${card.clock >= 0 ? '+' : ''}${card.clock} / 因果律: ${card.influence}`;
+            if (card.uid === gameState.macguffin.holder) {
+                div.classList.add('has-macguffin');
+            }
+
+            // Tooltip removed in favor of Click Details
+            // div.title = ...
 
             div.innerHTML = `
             <div class="card-image ${card.faction}">
@@ -4435,6 +4432,38 @@
             </div>
         `;
             return div;
+        }
+
+        // Long Press Handler Helper
+        function addPressHandler(element, callback) {
+            let timer = null;
+            const PRESS_DURATION = 500; // 0.5s
+
+            const start = (e) => {
+                // Prevent interfering with Drag
+                // But for mobile touch, we might need to be careful?
+                // Let's just set timer.
+                timer = setTimeout(() => {
+                    callback();
+                    timer = null;
+                }, PRESS_DURATION);
+            };
+
+            const cancel = (e) => {
+                if (timer) {
+                    clearTimeout(timer);
+                    timer = null;
+                }
+            };
+
+            element.addEventListener('mousedown', start);
+            element.addEventListener('touchstart', start, { passive: true });
+
+            element.addEventListener('mouseup', cancel);
+            element.addEventListener('mouseleave', cancel);
+            element.addEventListener('touchend', cancel);
+            element.addEventListener('touchmove', cancel);
+            element.addEventListener('dragstart', cancel); // Cancel on drag
         }
 
         function renderAll() {
@@ -4486,7 +4515,34 @@
                     const el = createCardElement(card);
                     el.classList.add('filled');
                     // Add click handler for Field Interaction
-                    el.onclick = () => handleFieldCardClick(card, who);
+                    el.onclick = async () => {
+                        await handleFieldCardClick(card, who);
+                        // Return value ignored, assuming handleFieldCardClick handles selection logic.
+                        // No details on click anymore.
+                    };
+
+                    // Long Press -> Show Details
+                    addPressHandler(el, () => {
+                        if (!gameState.confirmModalOpen && !gameState.waitingForAction) {
+                            showCardDetail(card);
+                        }
+                    });
+
+                    // Add Double Click for Active Skills (Patriot)
+                    el.ondblclick = async () => {
+                        if (gameState.waitingForAction === null && gameState.currentPlayer === 'player' && who === 'player') {
+                            // Active Skill Trigger: Revolutionary
+                            if (card.id === 'pe_icon_patriot') { // 名もなき革命家
+                                const result = await showCustomConfirm('効果発動', '名もなき革命家の効果を発動しますか？\n（相手イコンの効果を無効化）');
+                                if (result) {
+                                    showInstruction('無効化する相手のイコンを選択してください');
+                                    gameState.waitingForAction = 'revolutionary_target_selection';
+                                    renderAll();
+                                }
+                            }
+                        }
+                    };
+
                     // Add pointer cursor if interaction valid
                     const isCostSelection = (gameState.waitingForAction === 'cost_payment' || gameState.waitingForAction === 'snatch_cost_selection');
                     if (who === 'player' && (gameState.waitingForAction === 'snatch_target_selection' || isCostSelection || (gameState.currentPlayer === 'player' && card.id === 'pe_icon_patriot'))) {
@@ -4569,11 +4625,34 @@
                     document.getElementById('player-field').classList.remove('drop-target');
                 };
 
-                // Click still works for selection (for costs etc)
+                // Click: Select/Deselect ONLY (No Details on Click)
                 el.onclick = () => {
-                    toggleCardSelection(card);
-                    if (!tryPlayCard()) renderAll();
+                    // If waiting for action (Cost Payment / Snatch Cost) -> Toggle Selection
+                    if (gameState.waitingForAction === 'cost_payment' || gameState.waitingForAction === 'snatch_cost_selection') {
+                        toggleCardSelection(card);
+                        if (!tryPlayCard()) renderAll();
+                    }
+                    // Previously showed details here on neutral click. Now removed.
                 };
+
+                // Long Press -> Show Details
+                addPressHandler(el, () => {
+                    // Only show if not dragging/interacting? 
+                    // addPressHandler handles dragstart cancel.
+                    // Also check if no modal open?
+                    if (!gameState.confirmModalOpen && !gameState.waitingForAction) {
+                        showCardDetail(card);
+                    }
+                });
+
+                // Double Click: Play Card (Equivalent to Drop)
+                el.ondblclick = () => {
+                    // Only in neutral state
+                    if (!gameState.waitingForAction && !gameState.actionInProgress && gameState.currentPlayer === 'player') {
+                        initiateCardPlayFromDrop(card);
+                    }
+                };
+
                 handDiv.appendChild(el);
             });
 
@@ -4763,7 +4842,7 @@
                 // Compact Single Line Details
                 details.innerHTML = `
                     <div class="card-list-row-header">
-                        <span class="card-list-name">【${card.name}】</span>
+                        <span class="card-list-name">${card.name}</span>
                         <span class="card-list-type">${card.type === 'icon' ? 'イコン' : 'ファブラ'} / ${factionName}</span>
                         <span class="card-list-stats">コスト: ${card.cost} / 時計: ${card.clock} / 因果律: ${card.influence}</span>
                     </div>
@@ -4773,6 +4852,36 @@
                 entry.appendChild(details);
                 grid.appendChild(entry);
             });
+            document.getElementById('card-list-modal').style.display = 'block';
+        }
+
+        function showCardDetail(card) {
+            const grid = document.getElementById('full-card-grid');
+            grid.innerHTML = '';
+            document.getElementById('card-list-title').textContent = 'カード詳細';
+
+            const entry = document.createElement('div');
+            entry.className = 'card-list-entry';
+
+            const cardEl = createCardElement(card);
+            cardEl.onclick = null;
+            entry.appendChild(cardEl);
+
+            const details = document.createElement('div');
+            details.className = 'card-list-details';
+            const factionName = { knight: '騎士', clergy: '聖職', noble: '貴族', people: '民衆' }[card.faction] || card.faction;
+
+            details.innerHTML = `
+                <div class="card-list-row-header">
+                    <span class="card-list-name">${card.name}</span>
+                    <span class="card-list-type">${card.type === 'icon' ? 'イコン' : 'ファブラ'} / ${factionName}</span>
+                    <span class="card-list-stats">コスト: ${card.cost} / 時計: ${card.clock} / 因果律: ${card.influence}</span>
+                </div>
+                <div class="card-list-effect">${card.effect || '（効果なし）'}</div>
+            `;
+            entry.appendChild(details);
+            grid.appendChild(entry);
+
             document.getElementById('card-list-modal').style.display = 'block';
         }
 
@@ -4889,7 +4998,7 @@
         }
 
         async function runGuideDraftPhase() {
-            await showGuideAlert("ここでデッキ枚数が13枚になるまで、カードを選択してください\n\nチュートリアルのため自動で選ばれます");
+            await showGuideAlert("ここでデッキ枚数が13枚になるまで、カードを選択してください\n\n※チュートリアルのため自動で選ばれます");
 
             // 自動ドラフト: 13枚になるまで
             const targetCount = 13;
@@ -4969,9 +5078,9 @@
 
             // 2. イコン展開説明
             // ハイライト: プレイヤーの手札エリア全体または特定のカード
-            await showGuideAlert("手札からイコンを出してみましょう\n\nイコンは手札から場へドラッグアンドドロップで出せます", "#hand-area");
+            await showGuideAlert("手札からイコンを出してみましょう\n\nイコンはダブルクリックまたは、手札から場へドラッグアンドドロップで出せます", "#hand-area");
 
-            // 3. 自動イコン召喚（最低コスト）
+            // 3. 自動イコン登壇（最低コスト）
             const icons = gameState.player.hand.filter(c => c.type === 'icon');
             if (icons.length > 0) {
                 // 最低コスト
@@ -5033,7 +5142,7 @@
 
             // 5.5 ファブラ説明
             // 手札にファブラがあれば、コストを支払い実行することができます
-            await showGuideAlert("手札にファブラがあれば、コストを支払い実行することができます\n\nファブラは使い切りの強力な呪文です\nファブラも手札から場へドラッグアンドドロップで使用することが出来ます", "#hand-area");
+            await showGuideAlert("手札にファブラがあれば、コストを支払い実行することができます\n\nファブラは使い切りの強力な呪文です\nファブラもダブルクリックまたは手札から場へドラッグアンドドロップで使用することが出来ます", "#hand-area");
 
             // 6. ターン終了説明
             await showGuideAlert("ターンを終了します\n\nイコンがマクガフィンを保持していた場合、勝利点を得ることができます", "#end-turn-btn");
