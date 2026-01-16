@@ -1,0 +1,4860 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>終焉のイコン - Icons of the End</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a12;
+            --bg-card: #1a1a2e;
+            --text: #e0e0e0;
+            --accent: #e94560;
+            --gold: #ffd700;
+            --knight: #8b4513;
+            --clergy: #4a90d9;
+            --noble: #6b3fa0;
+            --people: #5d7a3d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Noto Sans JP', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(255, 0, 85, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.05) 0%, transparent 20%);
+        }
+
+        /* Glassmorphism Utility */
+        .glass-panel {
+            background: rgba(20, 20, 25, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: url('images/title_BG.png') no-repeat center center/cover;
+            position: relative;
+        }
+
+        .start-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1;
+        }
+
+        .start-title,
+        .start-subtitle,
+        .start-buttons {
+            position: relative;
+            z-index: 2;
+        }
+
+        .start-title {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            color: var(--gold);
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(255, 215, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .start-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.7;
+            margin-bottom: 40px;
+        }
+
+        .start-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .start-btn {
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .start-btn.primary {
+            background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
+            color: #000;
+        }
+
+        .start-btn.secondary {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        /* ドラフト画面 */
+        .draft-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 20px;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .draft-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .draft-info {
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .draft-pool {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-width: 700px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .draft-decks {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .deck-preview {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 15px;
+            border-radius: 8px;
+            min-width: 100px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .deck-preview h3 {
+            font-size: 0.75rem;
+            margin: 0;
+        }
+
+        .deck-count {
+            font-size: 1.2rem;
+            font-family: 'Cinzel', serif;
+            color: var(--accent);
+        }
+
+        /* ゲーム画面 */
+        .game-screen {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            background: url('images/game_BG.png') no-repeat center center/cover;
+            position: relative;
+        }
+
+        .game-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            /* Slightly darken game bg */
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .game-board-top,
+        .game-board,
+        .hand-section {
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-header {
+            background: rgba(20, 20, 25, 0.8);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .game-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--gold);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .clock-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .clock-icon {
+            font-size: 1.5rem;
+        }
+
+        .clock-value {
+            font-size: 1.8rem;
+            font-family: 'Cinzel', serif;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .turn-indicator {
+            padding: 5px 15px;
+            background: var(--accent);
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* 盤面 */
+        .game-board {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 10px;
+            position: relative;
+        }
+
+        .player-area {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .player-area.active {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+
+        .player-area.cpu {
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .player-area.human {
+            border-radius: 12px 12px 0 0;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .player-vp {
+            background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+            border: 1px solid #ffd700;
+            font-size: 1.1rem;
+        }
+
+        /* Rich Stats */
+        .rich-stat-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--accent);
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-family: 'Cinzel', serif;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.2);
+        }
+
+        .rich-stat-label {
+            font-size: 0.7rem;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        .rich-stat-value {
+            font-size: 1.2rem;
+            color: var(--accent);
+            text-shadow: 0 0 5px var(--accent);
+        }
+
+        .inspect-btn-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        .inspect-btn {
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .inspect-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--cyan);
+        }
+
+        .field-slots {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            min-height: 180px;
+            align-items: center;
+        }
+
+        .center-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* min-height removed */
+            width: 100%;
+            text-align: center;
+            /* 追加 */
+        }
+
+        .macguffin-display {
+            transition: all 0.5s;
+            margin: 0 auto;
+            /* 追加 */
+        }
+
+        .field-slot {
+            width: 110px;
+            height: 180px;
+            border: 2px dashed #444;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.5;
+        }
+
+        /* Snatch Target Highlight - Green glow for selectable icons */
+        .snatch-target-highlight {
+            border: 3px solid #00ff00 !important;
+            box-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00, inset 0 0 10px rgba(0, 255, 0, 0.3) !important;
+            cursor: pointer !important;
+            animation: snatchPulse 0.8s ease-in-out infinite !important;
+        }
+
+        @keyframes snatchPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00;
+                transform: scale(1);
+            }
+
+            50% {
+                box-shadow: 0 0 30px #00ff00, 0 0 60px #00ff00;
+                transform: scale(1.02);
+            }
+        }
+
+        .macguffin-field-icon {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, var(--gold) 0%, #b8860b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px var(--gold);
+            animation: pulse 2s infinite;
+            z-index: 10;
+        }
+
+        .macguffin-field-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* 中央エリア */
+        .center-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 0;
+            /* 高さをなくす */
+            overflow: visible;
+            /* 内容ははみ出させる */
+            z-index: 5;
+            margin: 0;
+            /* マージン削除 */
+        }
+
+        .macguffin-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--gold) 0%, transparent 60%);
+            box-shadow: 0 0 30px var(--gold-glow);
+            z-index: 10;
+        }
+
+
+
+        /* MacGuffin Image Element */
+        .macguffin-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 0 20px var(--gold), 0 0 40px rgba(255, 215, 0, 0.4);
+            animation: orbPulse 2s infinite;
+        }
+
+        @keyframes orbPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px var(--gold);
+            }
+
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 40px var(--gold);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 30px var(--gold);
+            }
+
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 50px var(--gold);
+            }
+        }
+
+        .macguffin-holder {
+            position: absolute;
+            font-size: 0.8rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 5px 15px;
+            border-radius: 20px;
+            top: -5px;
+        }
+
+        /* 手札エリア */
+        .hand-section {
+            background: rgba(10, 10, 15, 0.9);
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .hand-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .hand-title {
+            font-size: 0.9rem;
+        }
+
+        .selected-info {
+            color: var(--accent);
+        }
+
+        .hand-and-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .hand-area {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            flex-grow: 1;
+            padding: 5px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 120px;
+        }
+
+        .action-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-snatch {
+            background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
+            color: #000;
+        }
+
+        .btn-snatch:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-end {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: #000;
+        }
+
+        .btn-end:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.3);
+        }
+
+        .return-title-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #444, #222);
+            color: #ccc;
+            border: 1px solid #666;
+            padding: 10px 30px;
+            border-radius: 6px;
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 1rem;
+            display: none;
+            /* Hidden by default */
+        }
+
+        .return-title-btn:hover {
+            color: #fff;
+            background: linear-gradient(135deg, #555, #333);
+        }
+
+        /* カード */
+        .card {
+            width: 100px;
+            height: 175px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+            border: 2px solid #444;
+            flex-shrink: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.05);
+            z-index: 100;
+            border-color: #fff;
+        }
+
+        .card.selected {
+            border-color: #ff00ff;
+            box-shadow: 0 0 20px #ff00ff;
+            transform: translateY(-15px);
+        }
+
+        .card.has-macguffin {
+            border-color: var(--gold);
+            animation: cardGlow 1.5s infinite;
+        }
+
+        @keyframes cardGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 15px var(--gold);
+            }
+
+            50% {
+                box-shadow: 0 0 30px var(--gold), 0 0 60px var(--gold);
+            }
+        }
+
+        .card.faction-knight {
+            border-color: var(--knight);
+        }
+
+        .card.faction-clergy {
+            border-color: var(--clergy);
+        }
+
+        .card.faction-noble {
+            border-color: var(--noble);
+        }
+
+        .card.faction-people {
+            border-color: var(--people);
+        }
+
+        .card-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 5px;
+            overflow: hidden;
+        }
+
+        .card-image.knight {
+            background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+        }
+
+        .card-image.clergy {
+            background: linear-gradient(135deg, #4a90d9 0%, #2e5f8a 100%);
+        }
+
+        .card-image.noble {
+            background: linear-gradient(135deg, #6b3fa0 0%, #4a2c6a 100%);
+        }
+
+        .card-image.people {
+            background: linear-gradient(135deg, #5d7a3d 0%, #3d5226 100%);
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex-grow: 1;
+            /* 高さを自動調整 */
+            justify-content: space-between;
+        }
+
+        .card-name {
+            font-size: 0.65rem;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-type {
+            font-size: 0.55rem;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        .card-stats {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #000;
+            background: rgba(255, 255, 255, 0.7);
+            border-top: 1px solid #ccc;
+            padding: 2px 0;
+            margin-top: auto;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 0.5rem;
+            opacity: 0.6;
+        }
+
+        .stat-value {
+            font-weight: bold;
+        }
+
+        .stat-value.positive {
+            color: #4ade80;
+        }
+
+        .stat-value.negative {
+            color: var(--accent);
+        }
+
+        /* アクションログ */
+        .action-log {
+            /* position, top, right, widthは親コンテナで制御 */
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 10px 10px 0 0;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.75rem;
+            border: 1px solid #333;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #222;
+            opacity: 0.9;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            /* 透明度を0.25に変更 */
+            /* 0.9から0.6に変更して画面が見えるように */
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .guide-mode-content {
+            max-width: 90vw !important;
+            width: 500px !important;
+        }
+
+        /* ガイドポップアップ位置調整用（下段表示） */
+        .guide-position-bottom {
+            position: absolute !important;
+            bottom: 50px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            margin: 0 !important;
+            top: auto !important;
+            /* デフォルトの配置を打ち消し */
+        }
+
+        .guide-mode-content .confirm-message {
+            text-align: left;
+            line-height: 1.8;
+        }
+
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--gold);
+            text-align: center;
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        /* 勝利画面 */
+        .victory-screen {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .victory-text {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .victory-text.win {
+            color: var(--gold);
+            text-shadow: 0 0 50px var(--gold);
+        }
+
+        .victory-text.lose {
+            color: var(--accent);
+            text-shadow: 0 0 50px var(--accent);
+        }
+
+        .victory-sub {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* フラッシュエフェクト */
+        .flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+
+        .flash-overlay.red {
+            background: radial-gradient(circle, rgba(233, 69, 96, 0.5) 0%, transparent 70%);
+        }
+
+        /* フェーズ表示 */
+        .phase-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            text-shadow: 0 0 30px var(--gold);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 500;
+            transition: opacity 0.3s;
+        }
+
+        .card-list-entry {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+        }
+
+        .card-list-entry .card {
+            /* Prevent hover transform in list */
+            transform: none !important;
+            cursor: default;
+        }
+
+        .card-list-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .card-list-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        .card-list-type {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .card-list-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            width: fit-content;
+        }
+
+        .card-list-effect {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid var(--accent);
+        }
+
+        /* Instruction Popup */
+        .instruction-popup {
+            position: fixed;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            padding: 15px 30px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            z-index: 4000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+        }
+
+        .instruction-popup.active {
+            opacity: 1;
+        }
+
+        @keyframes popupPulse {
+
+            0%,
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+
+            50% {
+                transform: translateX(-50%) scale(1.05);
+            }
+        }
+
+        /* Confirm Modal Specifics */
+        .confirm-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 350px;
+            width: 300px;
+            text-align: center;
+            border: 2px solid var(--accent);
+            padding: 20px 25px;
+            background: var(--bg-card);
+            border-radius: 15px;
+            z-index: 1001;
+        }
+
+        .confirm-title {
+            color: var(--gold);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .confirm-message {
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .confirm-buttons .action-btn {
+            padding: 10px 25px;
+            font-size: 0.9rem;
+        }
+
+        /* Draft Card Styles - compact */
+        .draft-card-wrapper.list-style {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 11px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .draft-card-wrapper.list-style:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--cyan);
+        }
+
+        .draft-list-image {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 2px solid #444;
+            position: relative;
+            background: #222;
+        }
+
+        .draft-list-image .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .draft-list-image .card-img-alt {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.5rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        .draft-card-wrapper.type-icon .draft-list-image {
+            border-color: var(--gold);
+        }
+
+        .draft-card-wrapper.type-fabula .draft-list-image {
+            border-color: #aaa;
+        }
+
+        .draft-list-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .draft-list-header {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .draft-list-name {
+            font-weight: bold;
+            color: var(--gold);
+            font-size: 0.95rem;
+        }
+
+        .draft-list-type {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #aaa;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* Compact Card List Design */
+        .card-list-item {
+            display: flex;
+            align-items: center;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            padding: 5px 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #eee;
+            gap: 10px;
+        }
+
+        .card-list-item .cl-name {
+            flex: 2;
+            font-weight: bold;
+        }
+
+        .card-list-item .cl-type {
+            flex: 1;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .card-list-item .cl-stats {
+            flex: 2;
+            display: flex;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .card-list-item .cl-effect {
+            flex: 4;
+            font-size: 0.8rem;
+            color: #ccc;
+            border-left: 1px solid #555;
+            padding-left: 10px;
+        }
+
+        .modal {
+            display: none;
+            overflow: hidden;
+        }
+
+        .draft-list-stats {
+            font-size: 0.75rem;
+            color: #ccc;
+            margin-left: auto;
+        }
+
+        .draft-list-effect {
+            font-size: 0.8rem;
+            line-height: 1.3;
+            color: #bbb;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .picked-by-player.list-style {
+            border-color: #4ade80 !important;
+            background: rgba(74, 222, 128, 0.1) !important;
+        }
+
+        .picked-by-player.list-style::after {
+            content: 'YOU';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4ade80;
+            color: #000;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .picked-by-cpu.list-style {
+            border-color: #f87171 !important;
+            background: rgba(248, 113, 113, 0.15) !important;
+            opacity: 0.6;
+        }
+
+        .picked-by-cpu.list-style .draft-list-name {
+            text-decoration: line-through;
+            color: #f87171;
+        }
+
+        .picked-by-cpu.list-style::after {
+            content: 'CPU';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            background: #f87171;
+            color: #000;
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
+        }
+
+        .guide-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .guide-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .guide-section h3 {
+            color: var(--gold);
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .guide-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: #fff;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        /* Pending Summon (Ghost Card) */
+        .pending-summon {
+            opacity: 0.6;
+            border: 2px dashed var(--gold) !important;
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flash-overlay" id="flash-overlay"></div>
+    <div class="phase-display" id="phase-display"></div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-popup" class="instruction-popup"></div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content confirm-content">
+            <h2 id="confirm-title" class="confirm-title">確認</h2>
+            <p id="confirm-message" class="confirm-message">実行しますか？</p>
+            <div class="confirm-buttons">
+                <button id="confirm-yes" class="action-btn btn-snatch">はい (YES)</button>
+                <button id="confirm-no" class="action-btn" style="background: #555;">いいえ (NO)</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* MacGuffin Animation Style */
+        .macguffin-anim {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            z-index: 9999;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            filter: drop-shadow(0 0 10px gold);
+        }
+
+        /* Draft Selection Highlight */
+        .draft-selected {
+            border: 3px solid var(--gold) !important;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            z-index: 10;
+            transition: all 0.2s ease;
+        }
+
+        .draft-selected-cpu {
+            border: 3px solid #ff4444 !important;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+            z-index: 10;
+            transition: all 0.2s ease;
+        }
+
+        /* CPU Hand Visuals */
+        .cpu-hand-visual {
+            display: flex;
+            justify-content: center;
+            height: 50px;
+            /* Show top 1/3 (140px / 3 = ~46px) */
+            margin-bottom: -5px;
+            /* Adjust overlap with field */
+            z-index: 5;
+            min-width: 100px;
+            /* Ensure some width */
+            overflow: visible;
+        }
+
+        .cpu-hand-card {
+            width: 80px;
+            height: 140px;
+            /* Requested size */
+            background-image: url('images/back_side.png');
+            background-size: cover;
+            background-position: center bottom;
+            border-radius: 4px;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+            margin-left: -40px;
+            /* Overlap - Half width */
+            border: 1px solid #444;
+            transition: all 0.3s;
+            /* To make it look like only top 1/3 is relevant/visible, maybe we rely on the field covering the bottom?
+               The CPU area has .field-slots below this.
+               The .cpu-hand-visual is ABOVE .field-slots in HTML.
+               If we want the bottom of the cards to be hidden, we might need z-index or overflow on the container?
+               But usually hands are shown fan-like. "Top 1/3 visible" might mean the cards are tucked BEHIND the field slots?
+               Let's try z-index -1 relative to field slots?
+            */
+            z-index: 1;
+            /* Low z-index */
+        }
+
+        .cpu-hand-card:first-child {
+            margin-left: 0;
+        }
+
+        /* プレイガイド用ハイライト */
+        .guide-highlight {
+            position: relative;
+            z-index: 3001 !important;
+            box-shadow: 0 0 20px 5px var(--gold), 0 0 40px 10px rgba(255, 215, 0, 0.5) !important;
+            outline: 2px solid var(--gold) !important;
+            /* borderだとレイアウトがずれるためoutlineに変更 */
+            animation: pulse-guide 1.5s infinite;
+        }
+
+        @keyframes pulse-guide {
+            0% {
+                box-shadow: 0 0 10px 2px var(--gold);
+            }
+
+            50% {
+                box-shadow: 0 0 25px 8px var(--gold);
+            }
+
+            100% {
+                box-shadow: 0 0 10px 2px var(--gold);
+            }
+        }
+
+        /* ガイド用オーバーレイ */
+        .guide-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            /* 暗転なし */
+            z-index: 3000;
+            display: none;
+            pointer-events: all;
+            /* クリック遮断 */
+        }
+    </style>
+
+    <script>
+        // Animation Helper
+        async function animateMacGuffinMove(fromUID, toUID, callback) {
+            // 1. Find Start Element
+            let startEl = null;
+            if (!fromUID) {
+                // From center
+                startEl = document.getElementById('center-macguffin');
+            } else {
+                // From card
+                const pFields = document.getElementById('player-field').children;
+                const cFields = document.getElementById('cpu-field').children;
+                [...pFields, ...cFields].forEach(el => {
+                    if (el.querySelector('.has-macguffin-indicator')) {
+                        // Found
+                    }
+                });
+            }
+
+            // 1. Identify Start Rect
+            let startRect = null;
+            if (!fromUID) {
+                const center = document.getElementById('center-macguffin');
+                if (center && center.style.display !== 'none') {
+                    startRect = center.getBoundingClientRect();
+                } else {
+                    // Fallback to center screen
+                    startRect = { left: window.innerWidth / 2 - 25, top: window.innerHeight / 2 - 25, width: 50, height: 50 };
+                }
+            } else {
+                const allCards = document.querySelectorAll('.card');
+                for (let c of allCards) {
+                    // Search for visual indicator we added in renderField
+                    // But wait, renderField puts .macguffin-field-icon inside the slot, not on the card element itself?
+                    // Actually line 3390 iterates fields.
+                    // The 'slot' is the container.
+                    // We need to find the DOM element representing the card with UID.
+                    // Let's rely on data-uid if we added it, or the visual marker.
+                    // We need to implement a reliable finder.
+                    // For now, let's use the .macguffin-field-icon parent.
+                    const mgIcon = c.querySelector('.macguffin-field-icon');
+                    if (mgIcon || (c.dataset.uid === fromUID)) {
+                        startRect = c.getBoundingClientRect();
+                        break;
+                    }
+                    if (c.classList.contains('has-macguffin')) { // Legacy check
+                        startRect = c.getBoundingClientRect();
+                        break;
+                    }
+                }
+                // Also check field slots that might NOT be .card if structure differs?
+                if (!startRect) {
+                    // Check slots containing macguffin icon
+                    const mgIcons = document.querySelectorAll('.macguffin-field-icon');
+                    if (mgIcons.length > 0) {
+                        startRect = mgIcons[0].getBoundingClientRect();
+                    }
+                }
+            }
+
+            // If start not found, just do logic
+            if (!startRect) {
+                startRect = { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
+            }
+
+            // 2. Logic & Render
+            callback();
+
+            await new Promise(r => setTimeout(r, 50)); // Wait for render
+
+            // 3. Identify End Rect
+            let endRect = null;
+            if (!toUID) {
+                const center = document.getElementById('center-macguffin');
+                if (center) {
+                    startRect = center.getBoundingClientRect();
+                    endRect = center.getBoundingClientRect();
+                }
+            } else {
+                // Find card with new holder UID
+                // We really need a way to find card by UID. 
+                // Let's assume we can scan for it or use a helper if we had one.
+                console.log(`[Animation] MacGuffin move: ${fromUID} -> ${toUID}`);
+
+                const fromEl = fromUID ? document.querySelector(`[data-uid="${fromUID}"]`) : document.getElementById('center-macguffin');
+                const toEl = toUID ? document.querySelector(`[data-uid="${toUID}"]`) : document.getElementById('center-macguffin');
+
+                if (!fromEl || !toEl) {
+                    console.warn('[Animation] Elements not found for MacGuffin move');
+                    if (callback) callback();
+                    return;
+                }
+
+                // Create flying clone
+                const flyer = document.createElement('img');
+                flyer.src = 'images/sys_macguffin.png';
+                flyer.className = 'flying-card';
+                flyer.style.width = '40px'; // Approx macguffin size
+                flyer.style.zIndex = '9999';
+                flyer.style.position = 'fixed';
+                flyer.style.pointerEvents = 'none';
+
+                const startRect = fromEl.getBoundingClientRect();
+                const endRect = toEl.getBoundingClientRect();
+
+                flyer.style.left = `${startRect.left + startRect.width / 2 - 20}px`;
+                flyer.style.top = `${startRect.top + startRect.height / 2 - 20}px`;
+
+                document.body.appendChild(flyer);
+
+                // Animate
+                const duration = 600;
+                const startTime = performance.now();
+
+                function animate(time) {
+                    const elapsed = time - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const ease = 1 - Math.pow(1 - progress, 3); // Cubic ease out
+
+                    const currentX = startRect.left + (endRect.left - startRect.left) * ease;
+                    const currentY = startRect.top + (endRect.top - startRect.top) * ease;
+
+                    flyer.style.left = `${currentX + startRect.width / 2 - 20}px`; // Adjust centering if needed
+                    flyer.style.top = `${currentY + startRect.height / 2 - 20}px`;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        document.body.removeChild(flyer);
+                        if (callback) callback();
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+        }
+
+        function animateCardMove(card, fromZoneId, toZoneId, callback) {
+            console.log(`[Animation] Card move: ${card.name}`);
+
+            // 1. Find the source element (in hand)
+            // Note: In hand-area, cards usually don't have ID, search by data-uid or construct ID
+            // We assume renderHand adds data-uid if not already.
+            // Existing code likely doesn't put data-uid on hand cards, checking... 
+            // If not, we might need to rely on index or similar.
+            // For safety, let's try to find by image src or name within fromZone.
+
+            const fromZone = document.getElementById(fromZoneId);
+            const toZone = document.getElementById(toZoneId);
+
+            // Find specific card element in fromZone
+            // We'll search by checking if textContent contains name, or if img src matches id
+            let fromEl = Array.from(fromZone.children).find(el => el.textContent.includes(card.name) || el.innerHTML.includes(card.id));
+
+            if (!fromEl || !toZone) {
+                console.warn('[Animation] Card elements not found');
+                if (callback) callback();
+                return;
+            }
+
+            const startRect = fromEl.getBoundingClientRect();
+
+            // 2. Clone for animation
+            const flyer = fromEl.cloneNode(true);
+            flyer.classList.add('flying-card');
+            flyer.style.position = 'fixed';
+            flyer.style.margin = '0';
+            flyer.style.zIndex = '9999';
+            flyer.style.width = `${startRect.width}px`;
+            flyer.style.height = `${startRect.height}px`;
+            flyer.style.left = `${startRect.left}px`;
+            flyer.style.top = `${startRect.top}px`;
+            flyer.style.transition = 'none'; // Manual animation
+            flyer.style.pointerEvents = 'none';
+
+            document.body.appendChild(flyer);
+
+            // Hide original immediately (simulating it left hand)
+            fromEl.style.opacity = '0';
+
+            // 3. Determine Target Position
+            // We want to fly to where the card "will be" in the field.
+            // Since we haven't rendered the field with the new card yet, we can guess.
+            // Or better: We execute the State Update inside this function, render, measure, then animate.
+            // But callback implies logic happens after.
+            // Let's pass the "Logic to update state" as a callback?
+            // "animateCardPlay(card, onHalfway)"
+
+            // Current approach: Fly to center of field as a generic target if specific slot unknown?
+            // User wants "moves from hand to field". 
+            // Accurate way: Render new field state invisibly? Too complex.
+            // Simple way: Target the center of the `toZone` (field).
+            const endRect = toZone.getBoundingClientRect();
+            // Target roughly the end of the list or center
+            const targetX = endRect.left + (endRect.width / 2) - (startRect.width / 2);
+            const targetY = endRect.top + (endRect.height / 2) - (startRect.height / 2);
+
+            const duration = 500;
+            const startTime = performance.now();
+
+            function animate(time) {
+                const elapsed = time - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3); // Cubic ease out
+
+                const currentX = startRect.left + (targetX - startRect.left) * ease;
+                const currentY = startRect.top + (targetY - startRect.top) * ease;
+
+                flyer.style.left = `${currentX}px`;
+                flyer.style.top = `${currentY}px`;
+
+                // Optional scale change if field cards are smaller
+                // Field cards: ~100px width? Hand cards: ~100px.
+                // If dimensions differ, interpolate width/height too.
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    document.body.removeChild(flyer);
+                    if (callback) callback();
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+    </script>
+    <!-- ガイド用オーバーレイ -->
+    <div id="guide-overlay" class="guide-overlay"></div>
+
+    <div class="start-screen" id="start-screen">
+        <h1 class="start-title">終焉のイコン</h1>
+        <p class="start-subtitle">Icons of the End</p>
+        <div class="start-buttons">
+            <button class="start-btn primary" onclick="startGame()">ゲーム開始</button>
+            <button class="start-btn secondary" onclick="startGuideMode()">チュートリアル</button>
+            <button class="start-btn secondary" onclick="openRules()">ルール詳細</button>
+            <button class="start-btn secondary" onclick="openGuide()">操作ガイド</button>
+            <button class="start-btn secondary" onclick="openCardList()">カードリスト</button>
+
+        </div>
+        <div class="copyright-footer"
+            style="position: absolute; bottom: 10px; right: 20px; font-size: 1.2rem; color: #f5f5f5; pointer-events: none; opacity: 0.9;">
+            ©2026 こーもり / Bianfu Games
+        </div>
+    </div>
+
+    <!-- ドラフト画面 -->
+    <div class="draft-screen" id="draft-screen">
+        <h1 class="draft-title">DRAFT PHASE</h1>
+        <div class="draft-info" id="draft-info">カードを選んでデッキを構築 (残り: 30枚)</div>
+        <div class="draft-pool" id="draft-pool"></div>
+        <div class="draft-decks">
+            <div class="deck-preview">
+                <h3>YOUR DECK</h3>
+                <div class="deck-count" id="player-deck-count">0</div>
+            </div>
+            <div class="deck-preview">
+                <h3>CPU DECK</h3>
+                <div class="deck-count" id="cpu-deck-count">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Container: ドラフトフェイズとウォーフェイズで表示、スタート画面では非表示 -->
+    <div id="log-container"
+        style="position: fixed; top: 50%; right: 20px; transform: translateY(-50%); width: 250px; z-index: 2100; display: none;">
+        <div class="action-log" id="action-log"
+            style="height: 200px; overflow-y: auto; background: rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.2); border-bottom: none; padding: 10px; border-radius: 8px 8px 0 0; font-size: 0.75rem; margin: 0;">
+        </div>
+        <div
+            style="background: #333; border: 1px solid rgba(255,255,255,0.2); padding: 8px; text-align: center; border-radius: 0 0 8px 8px; margin: 0;">
+            <button id="btn-download-log" class="action-btn"
+                style="width: 100%; padding: 8px; font-size: 0.85rem; background: linear-gradient(135deg, #e0e0e0, #b0b0b0); color: #111; border: 1px solid #888; font-weight: bold; cursor: pointer; border-radius: 4px;"
+                onclick="downloadLogs()">⬇ ログ保存</button>
+        </div>
+    </div>
+
+    <!-- Instruction Popup -->
+    <div id="instruction-popup" class="instruction-popup">指示メッセージ</div>
+
+    <!-- ゲーム画面 -->
+    <div class="game-screen" id="game-screen" style="display: none;">
+        <button id="return-title-btn" class="return-title-btn" onclick="location.reload()">Return to Title</button>
+        <main class="main-field">
+            <div class="game-board-top">
+                <div class="status-panel left">
+                    <!-- Removed redundant stats -->
+                </div>
+
+                <div class="center-panel">
+                    <div class="turn-indicator" id="turn-indicator">waiting...</div>
+
+                    <div class="rich-stat-box" id="doomsday-clock-container">
+                        <span class="rich-stat-label">Doomsday Clock</span>
+                        <span class="rich-stat-value" id="doomsday-clock">0</span>
+                    </div>
+
+                </div>
+
+                <div class="status-panel right">
+                    <!-- Removed redundant stats -->
+                </div>
+
+                <button id="ingame-guide-btn" onclick="openGuide()"
+                    style="position:fixed; top:10px; right:10px; z-index:100; padding:5px 10px; background:#444; color:#fff; border:none; cursor:pointer;">操作ガイド</button>
+            </div>
+
+            <main class="game-board">
+                <div class="player-area cpu glass-panel" id="cpu-area">
+                    <div class="player-header">
+                        <span class="player-name">CPU</span>
+                        <div class="inspect-btn-group">
+                            <button class="inspect-btn" onclick="openDeckList('cpu')">LIST</button>
+                            <button class="inspect-btn" onclick="openDiscardList('cpu')">DISC</button>
+                        </div>
+                        <span class="player-vp" style="margin-left: 10px;">VP: <span id="cpu-vp">0</span></span>
+                        <!-- Hand Text Removed -->
+                    </div>
+                    <!-- CPU Hand Visualization -->
+                    <div id="cpu-hand-visual" class="cpu-hand-visual"></div>
+                    <div class="field-slots" id="cpu-field"
+                        style="position:relative; z-index:10; background:rgba(0,0,0,0.2); border-radius:8px;"></div>
+                </div>
+
+                <div class="center-area">
+                    <div id="center-macguffin" class="macguffin-display" style="display:none;">
+                        <img class="macguffin-img" src="images/sys_macguffin.png" alt="マクガフィン" title="マクガフィン（中央）">
+                    </div>
+                </div>
+
+                <div class="player-area human active glass-panel" id="player-area">
+                    <div class="player-header">
+                        <span class="player-name">YOU</span>
+                        <div class="inspect-btn-group">
+                            <button class="inspect-btn" onclick="openDeckList('player')">LIST</button>
+                            <button class="inspect-btn" onclick="openDiscardList('player')">DISC</button>
+                        </div>
+                        <span class="player-vp" style="margin-left: 10px;">VP: <span id="player-vp">0</span></span>
+                        <span style="font-size:0.8rem; margin-left:10px;">Hand: <span
+                                id="player-hand-count">0</span></span>
+                    </div>
+                    <div class="field-slots" id="player-field"></div>
+                </div>
+            </main>
+
+            <section class="hand-section">
+                <div class="hand-header">
+                    <span class="hand-title">手札 (コスト)</span>
+                    <span class="selected-info">選択中: <span id="selected-count">0</span>枚</span>
+                </div>
+                <div class="hand-and-controls">
+                    <div class="hand-area" id="hand-area"></div>
+                    <div class="controls">
+                        <button class="action-btn btn-snatch" id="action-execute-btn">強奪</button>
+                        <button class="action-btn btn-snatch" id="snatch-all-btn"
+                            style="display: none; background: linear-gradient(135deg, #ff4444, #990000); margin-top: 5px;">全手札で強奪</button>
+                        <button class="action-btn btn-end" id="btn-end" onclick="endPlayerTurn()">ターン終了</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 勝利画面 -->
+    <div class="victory-screen" id="victory-screen">
+        <div class="victory-text" id="victory-text">VICTORY</div>
+        <div class="victory-sub" id="victory-sub">勝利</div>
+        <button class="restart-btn" onclick="location.reload()">もう一度プレイ</button>
+    </div>
+
+    <!-- 確認モーダル -->
+    <div class="modal" id="confirm-modal" style="display: none;">
+        <div class="modal-content confirm-content">
+            <h2 class="confirm-title" id="confirm-title">確認</h2>
+            <p class="confirm-message" id="confirm-message">この操作を実行しますか？</p>
+            <div class="confirm-buttons">
+                <button class="action-btn" id="confirm-yes">はい</button>
+                <button class="action-btn btn-cancel" id="confirm-no">いいえ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 強奪コスト選択モーダル -->
+    <div class="modal" id="snatch-cost-modal" style="display: none;">
+        <div class="modal-content confirm-content" style="max-width: 400px;">
+            <h2 class="confirm-title">強奪コスト選択</h2>
+            <p class="confirm-message">支払うコストを選択してください</p>
+            <div style="text-align: center; margin: 20px 0;">
+                <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+                    <button class="action-btn" id="snatch-cost-minus" style="width:50px; font-size:1.5rem;">−</button>
+                    <span id="snatch-cost-value" style="font-size: 2rem; font-weight: bold; min-width: 50px;">1</span>
+                    <button class="action-btn" id="snatch-cost-plus" style="width:50px; font-size:1.5rem;">+</button>
+                </div>
+                <div style="margin-top: 15px;">
+                    <span style="color: var(--gold); font-size: 1.3rem;">成功率: <span id="snatch-success-rate"
+                            style="font-weight: bold;">50%</span></span>
+                </div>
+            </div>
+            <div class="confirm-buttons">
+                <button class="action-btn btn-snatch" id="snatch-cost-confirm">強奪実行</button>
+                <button class="action-btn btn-cancel" id="snatch-cost-cancel">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知モーダル -->
+    <div class="modal" id="alert-modal" style="display: none;">
+        <div class="modal-content confirm-content">
+            <h2 class="confirm-title" id="alert-title">通知</h2>
+            <p class="confirm-message" id="alert-message">メッセージ</p>
+            <div class="confirm-buttons">
+                <button class="action-btn" id="alert-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- カードリストモーダル -->
+    <div class="modal" id="card-list-modal">
+        <div class="modal-content large-content">
+            <span class="close-btn" onclick="closeModal('card-list-modal')">&times;</span>
+            <h2 class="modal-title" id="card-list-title">カード一覧</h2>
+            <div class="full-card-grid" id="full-card-grid"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="action-btn" onclick="closeModal('card-list-modal')">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ルールモーダル -->
+    <div class="modal" id="rules-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeRules()">&times;</span>
+            <h2 class="modal-title">終焉のイコン - ルール解説</h2>
+            <div style="font-size: 0.9rem; line-height: 1.6;">
+                <h3>■ ゲームの目的</h3>
+                <p>勝利点（VP）を10点集めるか、終末時計が0になった時に相手より高いVPを持つことを目指します。</p>
+                <br>
+
+                <h3>■ ドラフトフェイズ</h3>
+                <p>ゲーム開始前に、両プレイヤーが交互にカードをピックしてデッキを構築します。</p>
+                <h3>■ ルール概要</h3>
+                <ol>
+                    <li><strong>勝利条件</strong>:
+                        「勝利点(VP)」を先に10点集めた方が勝利。または、終末時計が0になったタイミングで相手より高いVPであるプレイヤーの勝利。終末時計が0になったタイミングで双方のVPが同数なら、マクガフィンを保持しているイコンが場に出ているプレイヤーの勝利。
+                    </li>
+                    <li><strong>フェイズ進行</strong>:
+                        <ul>
+                            <li><strong>ドラフトフェイズ</strong>: 山札からカードを選んで手札を作ります。（交互に選択）</li>
+                            <li><strong>ウォーフェイズ</strong>: 以下のステップを互いのプレイヤーで繰り返します。</li>
+                            <li><strong> - ドローステップ</strong>: 手札上限までカードを引きます。山札がない場合、捨て札からシャッフルして補充されます。</li>
+                            <li><strong> - アクションステップ</strong>: 手札から「イコン」を展開したり、「ファブラ」を使用したり、マクガフィンを「強奪」したりできます。
+                            </li>
+                            <li><strong> - カウントステップ</strong>:
+                                マクガフィン保持者は、場のイコンの因果律合計分の勝利点(因果)を獲得します。その後、時計が変動します。</li>
+                        </ul>
+                    </li>
+                    <li><strong>手札上限</strong>:
+                        <ul>
+                            <li>時計 0〜3: 6枚まで</li>
+                            <li>時計 4〜7: 5枚まで</li>
+                            <li>時計 8〜: 4枚まで</li>
+                        </ul>
+                    </li>
+                </ol>
+                <br>
+
+                <hr style="margin: 15px 0; border-color: #444;">
+                <div style="padding: 10px; background: rgba(0,0,0,0.3); border-radius: 5px; margin-top: 10px;">
+                    <h3>基本用語</h3>
+                    <ul>
+                        <li><strong>イコン</strong>: 場に出して戦うユニットカード。</li>
+                        <li><strong>ファブラ</strong>: 使い切りの効果カード。</li>
+                        <li><strong>マクガフィン</strong>: これを奪い合うキーアイテム。</li>
+                        <li><strong>コスト</strong>: カードを使用するために手札から捨てる枚数。</li>
+                        <li><strong>時計</strong>: 終末時計を増やす（+）か減らす（-）数値。
+                        <li><strong>因果律（旧影響力）</strong>: マクガフィン保持時に得られる勝利点（因果）。</li>
+                        <li><strong>終末時計</strong>: ゲームの終了を告げる時計。マイナスになるとゲーム終了。</li>
+                        <li><strong>因果</strong>: 勝利条件。10点先取で勝利。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operation Guide Modal -->
+    <div id="guide-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeGuide()">&times;</span>
+            <h2 class="modal-title">操作ガイド</h2>
+            <div class="guide-sections">
+                <div class="guide-section">
+                    <h3>イコンを場に出す</h3>
+                    <div class="guide-step"><span class="step-num">1</span>
+                        <p>手札のイコンを選択、場にドラッグアンドドロップ</p>
+                    </div>
+                    <div class="guide-step"><span class="step-num">2</span>
+                        <p>コスト分の手札を選択</p>
+                    </div>
+                    <div class="guide-step"><span class="step-num">3</span>
+                        <p>「召喚」ボタンをクリック</p>
+                    </div>
+                </div>
+                <div class="guide-section">
+                    <h3>ファブラを使う</h3>
+                    <div class="guide-step"><span class="step-num">1</span>
+                        <p>手札のファブラを選択、場にドラッグアンドドロップ</p>
+                    </div>
+                    <div class="guide-step"><span class="step-num">2</span>
+                        <p>コスト分の手札を選択</p>
+                    </div>
+                    <div class="guide-step"><span class="step-num">3</span>
+                        <p>「発動」ボタンをクリック</p>
+                    </div>
+                </div>
+                <div class="guide-section">
+                    <h3>イコン効果発動</h3>
+                    <div class="guide-step"><span class="step-num">1</span>
+                        <p>場の自分イコンをクリック</p>
+                    </div>
+                    <div class="guide-step"><span class="step-num">2</span>
+                        <p>ダイアログに従う</p>
+                    </div>
+                </div>
+                <div class="guide-section">
+                    <h3>強奪する</h3>
+                    <div class="guide-step"><span class="step-num">1</span>
+                        <p>手札から2枚選択</p>
+                    </div>
+                    <div class="guide-step"><span class="step-num">2</span>
+                        <p>「強奪」ボタンをクリック</p>
+                    </div>
+                    <div class="guide-step"><span class="step-num">3</span>
+                        <p>自分のイコンをクリック</p>
+                    </div>
+                </div>
+                <div class="guide-section">
+                    <h3>ターン終了</h3>
+                    <div class="guide-step"><span class="step-num">1</span>
+                        <p>「ターン終了」をクリック</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; border-top: 1px solid #444; padding-top: 10px;">
+                <button class="action-btn" onclick="startGuideMode(); closeGuide();"
+                    style="background: #ffffff; font-size: 0.8rem;">オートプレイで操作を見てみる（チュートリアル起動）</button>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="action-btn" onclick="closeGuide()">閉じる</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // === ログ収集システム ===
+        const consoleLogHistory = [];
+        const gameLogHistory = [];
+
+        // コンソールログのオーバーライド (保存用)
+        (function () {
+            const originalLog = console.log;
+            const originalWarn = console.warn;
+            const originalError = console.error;
+
+            function formatTime() {
+                const d = new Date();
+                return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+            }
+
+            console.log = function (...args) {
+                consoleLogHistory.push(`[${formatTime()}] [LOG] ${args.join(' ')}`);
+                originalLog.apply(console, args);
+            };
+
+            console.warn = function (...args) {
+                consoleLogHistory.push(`[${formatTime()}] [WARN] ${args.join(' ')}`);
+                originalWarn.apply(console, args);
+            };
+
+            console.error = function (...args) {
+                consoleLogHistory.push(`[${formatTime()}] [ERROR] ${args.join(' ')}`);
+                originalError.apply(console, args);
+            };
+        })();
+
+        // === カードデータ定義 (16種・80枚) ===
+        // Loaded from data.js: const CARDS = [...]
+
+        // === ゲーム状態 ===
+        const gameState = {
+            phase: 'draft',
+            currentPlayer: 'player',
+            doomsdayClock: 10,
+            player: { vp: 0, hand: [], field: [], deck: [], discard: [] },
+            cpu: { vp: 0, hand: [], field: [], deck: [], discard: [] },
+            macguffin: { holder: null },
+            masterPool: [],
+            draftPool: [],
+            selectedCards: [],
+            snatchCostReduction: 0,
+            protectedUntilNextTurn: false,
+            snatchBlocked: false,
+            turnCount: 0,
+            draftTurn: 'player', // 'player' or 'cpu'
+            draftSelections: [], // { card, pickedBy } for visual tracking
+            draftPickingLocked: false, // Prevent double clicks
+            confirmModalOpen: false, // ポップアップが開いているかどうか
+            isGuideMode: false, // プレイガイドモードかどうか
+            autoEndTurnPending: false, // 自動ターン終了確認が保留中かどうか
+            actionInProgress: false, // アクション処理中かどうか（重複トリガー防止）
+            lastActionCompletedTime: 0, // 最後のアクション完了時刻（自動ターン終了抑制用）
+            fabulasUsedThisTurn: [], // このターンに使用したファブラのID（同名制限用）
+            snatchInProgress: false // 強奪処理中（ターゲット選択中含む）
+        };
+
+        // === 初期化 ===
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            buildMasterPool();
+            shuffle(gameState.masterPool);
+            startDraft();
+        }
+
+        function buildMasterPool() {
+            gameState.masterPool = [];
+            // Remove local CARD_DATA reference, use CARDS from data.js
+            CARDS.forEach(template => {
+                for (let i = 0; i < template.copies; i++) {
+                    gameState.masterPool.push({ ...template, uid: `${template.id}_${i}` });
+                }
+            });
+        }
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // === ドラフトシステム ===
+        // 8スロット：騎士Icon, 騎士Fab, 聖職Icon, 聖職Fab, 貴族Icon, 貴族Fab, 民衆Icon, 民衆Fab
+        const DRAFT_SLOTS = [
+            { faction: 'knight', type: 'icon' },
+            { faction: 'knight', type: 'fabula' },
+            { faction: 'clergy', type: 'icon' },
+            { faction: 'clergy', type: 'fabula' },
+            { faction: 'noble', type: 'icon' },
+            { faction: 'noble', type: 'fabula' },
+            { faction: 'people', type: 'icon' },
+            { faction: 'people', type: 'fabula' }
+        ];
+
+        function startDraft() {
+            document.getElementById('draft-screen').style.display = 'flex';
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('victory-screen').style.display = 'none';
+            document.getElementById('confirm-modal').style.display = 'none'; // Ensure modal is closed
+            document.getElementById('confirm-yes').onclick = null; // Clear handler
+            document.getElementById('log-container').style.display = 'block'; // ログコンテナを表示
+            hideInstruction();
+
+            gameState.phase = 'draft';
+            gameState.turnCount = 0; // Draft is Turn 0
+            logAction('[Draft Phase]');
+            // マスタープールを陣営×タイプ別に分離してシャッフル
+            gameState.factionPools = {};
+            ['knight', 'clergy', 'noble', 'people'].forEach(faction => {
+                gameState.factionPools[faction] = {
+                    icon: shuffle(gameState.masterPool.filter(c => c.faction === faction && c.type === 'icon')),
+                    fabula: shuffle(gameState.masterPool.filter(c => c.faction === faction && c.type === 'fabula'))
+                };
+            });
+
+            // 8スロットの初期化（各スロットにnullまたはカード）
+            gameState.draftSlots = DRAFT_SLOTS.map(slot => null);
+            refillDraftSlots();
+
+            // CPUのドラフト戦略: 騎士・聖職者・貴族からランダムに1つ選ぶ
+            const primaryFactions = ['knight', 'clergy', 'noble'];
+            gameState.cpuDraftFaction = primaryFactions[Math.floor(Math.random() * primaryFactions.length)];
+            gameState.cpuFallbackToPeople = false;
+            console.log(`CPU Draft Strategy: Primary faction = ${gameState.cpuDraftFaction}`);
+
+            showDraftRound();
+        }
+
+        function refillDraftSlots() {
+            // 各スロットを確認し、空なら対応するプールから補充
+            DRAFT_SLOTS.forEach((slotDef, index) => {
+                if (gameState.draftSlots[index] === null) {
+                    const pool = gameState.factionPools[slotDef.faction][slotDef.type];
+                    if (pool.length > 0) {
+                        gameState.draftSlots[index] = pool.shift();
+                    }
+                }
+            });
+        }
+
+        function showDraftRound() {
+            const playerDeckSize = gameState.player.deck.length;
+            const cpuDeckSize = gameState.cpu.deck.length;
+
+            document.getElementById('player-deck-count').textContent = playerDeckSize;
+            document.getElementById('cpu-deck-count').textContent = cpuDeckSize;
+
+            if (playerDeckSize >= 13) {
+                finishDraft();
+                return;
+            }
+
+            renderDraftPool();
+        }
+
+        function renderDraftPool() {
+            const pool = document.getElementById('draft-pool');
+            pool.innerHTML = '';
+
+            // Show whose turn it is
+            document.getElementById('draft-info').textContent =
+                gameState.draftTurn === 'player'
+                    ? `あなたの番です - カードを選択してください (残り: ${13 - gameState.player.deck.length}枚)`
+                    : `CPUが選択中...`;
+
+            // Render each slot
+            gameState.draftSlots.forEach((card, slotIndex) => {
+                if (card) {
+                    const el = createDraftCardElement(card, slotIndex);
+                    pool.appendChild(el);
+                } else {
+                    // Empty slot - show placeholder for that faction/type
+                    const slotDef = DRAFT_SLOTS[slotIndex];
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'draft-card-wrapper list-style empty-slot';
+                    const factionName = { knight: '騎士', clergy: '聖職', noble: '貴族', people: '民衆' }[slotDef.faction];
+                    const typeName = slotDef.type === 'icon' ? 'イコン' : 'ファブラ';
+                    placeholder.innerHTML = `<div class="draft-list-details"><span class="draft-list-name" style="opacity:0.3">${factionName}の${typeName} - 売り切れ</span></div>`;
+                    placeholder.style.opacity = '0.3';
+                    pool.appendChild(placeholder);
+                }
+            });
+        }
+
+        // ドラフト専用カード表示（リストスタイル）
+        function createDraftCardElement(card, slotIndex) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `draft-card-wrapper list-style type-${card.type}`;
+
+            // Layout: [Image] [Single-line header] [Effect]
+            const factionName = { knight: '騎士', clergy: '聖職', noble: '貴族', people: '民衆' }[card.faction] || card.faction;
+            wrapper.innerHTML = `
+                <div class="draft-list-image">
+                    <img src="images/${card.id}.png" class="card-img" onerror="this.style.display='none';">
+                </div>
+                <div class="draft-list-details">
+                    <div class="draft-list-header">
+                        <span class="draft-list-name">${card.name}</span>
+                        <span class="draft-list-type">${card.type === 'icon' ? 'イコン' : 'ファブラ'} / ${factionName}</span>
+                        <span class="draft-list-stats">${card.type === 'icon' ? `コスト: ${card.cost} / 時計: ${card.clock} / 因果律: ${card.influence}` : `コスト: ${card.cost} / 時計: ${card.clock} / 因果律: ${card.influence}`}</span>
+                    </div>
+                    <div class="draft-list-effect">${card.effect || '（効果なし）'}</div>
+                </div>
+            `;
+
+            // Only clickable on player's turn (and not in guide mode)
+            if (gameState.draftTurn === 'player' && !gameState.isGuideMode) {
+                wrapper.onclick = () => playerPickCard(slotIndex);
+                wrapper.style.cursor = 'pointer';
+            } else {
+                wrapper.style.cursor = 'not-allowed';
+                wrapper.style.opacity = '0.8';
+            }
+
+            // 13th Pick Safety Check: If it's the last pick and player has NO icons, disable Fabula
+            if (gameState.draftTurn === 'player' && gameState.player.deck.length === 12) {
+                const hasIcon = gameState.player.deck.some(c => c.type === 'icon');
+                if (!hasIcon && card.type !== 'icon') {
+                    wrapper.onclick = async () => {
+                        await showCustomAlert("選択不可", "イコンが1枚もありません！最後の1枚はイコンを選択してください。");
+                    };
+                    wrapper.style.cursor = 'not-allowed';
+                    wrapper.style.opacity = '0.5';
+                    return wrapper; // Return early with disabled state
+                }
+            }
+
+            return wrapper;
+        }
+
+        function playerPickCard(slotIndex) {
+            if (gameState.draftTurn !== 'player') return;
+            if (gameState.draftPickingLocked) return;
+
+            const card = gameState.draftSlots[slotIndex];
+            if (!card) return;
+
+            // Visual Feedback First
+            gameState.draftPickingLocked = true;
+            const poolEl = document.getElementById('draft-pool');
+            if (poolEl && poolEl.children[slotIndex]) {
+                poolEl.children[slotIndex].classList.add('draft-selected');
+            }
+
+            // Delay processing
+            setTimeout(() => {
+                gameState.player.deck.push(card);
+                gameState.draftSelections.push({ card, pickedBy: 'player' });
+
+                // スロットを空にして同じ位置に補充
+                gameState.draftSlots[slotIndex] = null;
+                refillDraftSlots();
+                gameState.draftPickingLocked = false;
+
+                document.getElementById('player-deck-count').textContent = gameState.player.deck.length;
+                logAction(`あなたが【${card.name}】をピック`);
+
+                // 13枚目強制チェック
+                if (gameState.player.deck.length === 12) {
+                    const hasIcon = gameState.player.deck.some(c => c.type === 'icon');
+                    if (!hasIcon) {
+                        showCustomAlert("警告", "デッキにイコンが1枚もありません！\n最後の1枚は必ず「イコン」を選択してください。");
+                    }
+                }
+
+                // Switch to CPU turn
+                gameState.draftTurn = 'cpu';
+                renderDraftPool();
+
+                setTimeout(() => {
+                    cpuPickCard();
+                }, 100);
+            }, 500); // 500ms visual delay
+        }
+
+        function getDraftStrategyPick(deck, targetFaction, availableSlots) {
+            console.log(`[getDraftStrategyPick] Called. Deck: ${deck.length}, Target: ${targetFaction}, Slots: ${availableSlots.length}`);
+
+            let candidates = [];
+            // 1. First pick must be Icon
+            if (deck.length === 0) {
+                console.log('[getDraftStrategyPick] First pick logic (Icon priority)');
+                candidates = availableSlots.filter(s => s.card.faction === targetFaction && s.card.type === 'icon');
+                if (candidates.length === 0) {
+                    console.log('[getDraftStrategyPick] No target icon found! Fallback to target Fabula.');
+                    candidates = availableSlots.filter(s => s.card.faction === targetFaction && s.card.type === 'fabula');
+                }
+            } else {
+                // 2. Subsequent
+                const preferIcon = Math.random() < 0.5;
+                const preferredType = preferIcon ? 'icon' : 'fabula';
+                const backupType = preferIcon ? 'fabula' : 'icon';
+
+                console.log(`[getDraftStrategyPick] Standard logic. Pref: ${preferredType}`);
+
+                candidates = availableSlots.filter(s => s.card.faction === targetFaction && s.card.type === preferredType);
+                if (candidates.length === 0) candidates = availableSlots.filter(s => s.card.faction === targetFaction && s.card.type === backupType);
+                if (candidates.length === 0) {
+                    console.log('[getDraftStrategyPick] Target faction empty. Fallback to People.');
+                    candidates = availableSlots.filter(s => s.card.faction === 'people' && s.card.type === preferredType);
+                    if (candidates.length === 0) candidates = availableSlots.filter(s => s.card.faction === 'people' && s.card.type === backupType);
+                }
+                if (candidates.length === 0) {
+                    console.log('[getDraftStrategyPick] No People either. Any random.');
+                    candidates = availableSlots;
+                }
+            }
+
+            const selected = candidates[0] || availableSlots[0];
+            if (selected) {
+                console.log(`[getDraftStrategyPick] Selected: ${selected.card.name} (Index: ${selected.index})`);
+            } else {
+                console.error('[getDraftStrategyPick] No selection possible?!');
+            }
+            return selected;
+        }
+
+        function cpuPickCard() {
+            // 利用可能なカードからピック
+            const availableSlots = gameState.draftSlots
+                .map((card, index) => ({ card, index }))
+                .filter(s => s.card !== null);
+
+            if (availableSlots.length === 0) {
+                gameState.draftTurn = 'player';
+                showDraftRound();
+                return;
+            }
+
+            // CPU戦略: 集中勢力のみ狙う
+            let targetFaction = gameState.cpuDraftFaction;
+            let candidates = [];
+
+            // 1. 初手は必ずイコン (集中勢力)
+            if (gameState.cpu.deck.length === 0) {
+                candidates = availableSlots.filter(s => s.card.faction === targetFaction && s.card.type === 'icon');
+                // 初手イコン売り切れ（あり得ないが）のフォールバックはファブラ
+                if (candidates.length === 0) {
+                    candidates = availableSlots.filter(s => s.card.faction === targetFaction && s.card.type === 'fabula');
+                }
+            } else {
+                // 2. 以降: イコンかファブラを集中 (ランダムにターゲットを決定)
+                // "イコンかファブラを集中して取得する" -> どちらかを狙い、無ければもう片方
+                const preferIcon = Math.random() < 0.5;
+                const preferredType = preferIcon ? 'icon' : 'fabula';
+                const backupType = preferIcon ? 'fabula' : 'icon';
+
+                // Try Preferred within Target Faction
+                candidates = availableSlots.filter(s => s.card.faction === targetFaction && s.card.type === preferredType);
+
+                // Fallback to Backup within Target Faction
+                if (candidates.length === 0) {
+                    candidates = availableSlots.filter(s => s.card.faction === targetFaction && s.card.type === backupType);
+                }
+
+                // Fallback to People (Same preference logic)
+                if (candidates.length === 0) {
+                    candidates = availableSlots.filter(s => s.card.faction === 'people' && s.card.type === preferredType);
+                    if (candidates.length === 0) {
+                        candidates = availableSlots.filter(s => s.card.faction === 'people' && s.card.type === backupType);
+                    }
+                }
+
+                // Absolute Fallback
+                if (candidates.length === 0) {
+                    candidates = availableSlots;
+                }
+            }
+
+            // 候補の中から選ぶ
+            let pickObj = candidates[0];
+            // 万が一 candidates が空なら availableSlots から
+            if (!pickObj) pickObj = availableSlots[0];
+
+            const { card: pick, index: slotIndex } = pickObj;
+
+            // Visual Feedback for CPU
+            gameState.draftPickingLocked = true; // Just in case
+            const poolEl = document.getElementById('draft-pool');
+            if (poolEl && poolEl.children[slotIndex]) {
+                poolEl.children[slotIndex].classList.add('draft-selected-cpu');
+            }
+
+            setTimeout(() => {
+                gameState.cpu.deck.push(pick);
+                gameState.draftSelections.push({ card: pick, pickedBy: 'cpu' });
+
+                // スロットを空にして同じ位置に補充
+                gameState.draftSlots[slotIndex] = null;
+                refillDraftSlots();
+                gameState.draftPickingLocked = false;
+
+                document.getElementById('cpu-deck-count').textContent = gameState.cpu.deck.length;
+                logAction(`CPUが【${pick.name}】をピック`);
+
+                // Switch back to player turn
+                gameState.draftTurn = 'player';
+
+                setTimeout(() => {
+                    if (gameState.player.deck.length < 13) {
+                        renderDraftPool();
+                    } else {
+                        showDraftRound();
+                    }
+                }, 300);
+            }, 500); // 500ms delay for CPU feedback
+        }
+
+        function finishDraft() {
+            shuffle(gameState.player.deck);
+            shuffle(gameState.cpu.deck);
+
+            document.getElementById('draft-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+
+            gameState.phase = 'war';
+            logAction('=== ゲーム開始 ===');
+            startPlayerTurn();
+        }
+
+        // === ターンフロー ===
+        async function startPlayerTurn() {
+            console.log('[startPlayerTurn] Called. Turn:', gameState.turnCount + 1);
+            gameState.currentPlayer = 'player';
+            gameState.turnCount++;
+
+            if (gameState.turnCount >= 30) {
+                showVictory(false, '引き分け (30ターン経過)');
+                return;
+            }
+            // ... (Rest of logic) ...
+
+            // Re-insert logs for existing logic
+            gameState.snatchCostReduction = 0;
+            gameState.snatchCostOverride = null;
+            gameState.snatchBlocked = false;
+            gameState.player.protectedUntilNextTurn = false;
+            gameState.fabulasUsedThisTurn = []; // 同名ファブラ制限リセット
+            gameState.snatchInProgress = false; // 強奪処理フラグリセット
+            gameState.autoEndTurnPending = false; // 自動ターン終了待機フラグリセット
+
+            // Queen Trigger
+            const queens = gameState.player.field.filter(c => c && c.id === 'ar_icon_queen');
+            if (queens.length > 0) {
+                // ... (keep logic) ...
+                if (gameState.player.hand.length > 0) {
+                    const result = await showCustomConfirm("【盤上を統べる女王】の効果", "手札1枚を破棄して、次のターンまで相手の強奪を封じますか？");
+                    if (result) {
+                        const disc = gameState.player.hand.pop();
+                        gameState.player.discard.push(disc);
+                        gameState.cpu.snatchBlocked = true;
+                        logAction('女王の効果発動：相手の強奪を封じた');
+                    }
+                }
+            }
+
+            // Revolutionary Trigger
+            // ... (keep logic) ...
+
+            // showPhase limited to first turn (or removed for 2nd+)
+            if (gameState.turnCount === 1) {
+                showPhase('War Phase');
+            }
+            logAction('[War Phase]');
+
+            console.log('[startPlayerTurn] Turn Count check:', gameState.turnCount);
+            if (gameState.turnCount === 1) {
+                // Turn 1: Small buffer then Synch-like draw
+                console.log('[startPlayerTurn] Turn 1: Setting timeout 50ms');
+                setTimeout(() => {
+                    console.log('[startPlayerTurn] Timeout fired (Turn 1). Calling drawStep.');
+                    drawStep('player');
+                    console.log('[startPlayerTurn] drawStep done. Hand size:', gameState.player.hand.length);
+                    logAction('<ドローステップ> 完了');
+                    logAction('<アクションステップ> 開始');
+                    renderAll();
+                    console.log('[startPlayerTurn] renderAll done.');
+                }, 50);
+            } else {
+                setTimeout(() => {
+                    console.log('[startPlayerTurn] Timeout fired (Turn > 1). Calling drawStep.');
+                    drawStep('player');
+                    console.log('[startPlayerTurn] drawStep done. Hand size:', gameState.player.hand.length);
+                    logAction('<ドローステップ> 完了');
+                    logAction('<アクションステップ> 開始');
+                    renderAll();
+                }, 200);
+            }
+        }
+
+        function startCpuTurn() {
+            gameState.currentPlayer = 'cpu';
+            gameState.snatchCostReduction = 0;
+            gameState.cpu.protectedUntilNextTurn = false; // Reset protection
+
+            // showPhase('War Phase (CPU)'); // Removed as requested
+            logAction('[War Phase] (CPU)');
+            setTimeout(() => {
+                drawStep('cpu');
+                logAction('<ドローステップ> 完了');
+                logAction('<アクションステップ> 開始');
+                renderAll();
+                setTimeout(cpuTakeTurn, 1500);
+            }, 200);
+        }
+
+        function getDrawLimit() {
+            const clock = gameState.doomsdayClock;
+            if (clock >= 8) return 4;
+            if (clock >= 3) return 5;
+            if (clock >= 1) return 6;
+            return 7;
+        }
+
+        function drawStep(who) {
+            console.log(`[drawStep] Called for ${who}. Deck: ${gameState[who].deck.length}, Hand: ${gameState[who].hand.length}`);
+            const player = gameState[who];
+            const limit = getDrawLimit();
+            console.log(`[drawStep] Limit: ${limit}`);
+
+            // 手札補充
+            while (player.hand.length < limit) {
+                if (player.deck.length === 0) {
+                    if (player.discard.length === 0) {
+                        console.log('[drawStep] Deck & Discard empty. Cannot draw.');
+                        break;
+                    }
+
+                    // Reshuffle
+                    player.deck = [...player.discard];
+                    player.discard = [];
+                    shuffle(player.deck);
+                    console.log('[drawStep] Reshuffled discard to deck.');
+                    logAction(`${who === 'player' ? 'あなた' : 'CPU'}のデッキ再構築（捨て札→デッキ）`);
+                }
+                const card = player.deck.pop();
+                player.hand.push(card);
+                console.log(`[drawStep] Drew card: ${card.name}`);
+            }
+            console.log(`[drawStep] Finished drawing. Hand size: ${player.hand.length}`);
+
+            // 超過分は消費
+            while (player.hand.length > limit) {
+                const discarded = player.hand.pop();
+                player.discard.push(discarded);
+                logAction(`${who === 'player' ? 'あなた' : 'CPU'}が【${discarded.name}】を消費`);
+            }
+
+            // 1ターン目のみ：手札配布のタイミング保証 (バグ修正)
+            // ensureIconInHandは手札が配られた後にチェックする必要がある
+            if (gameState.turnCount === 1 && who === 'player') {
+                console.log('Doing first turn icon check...');
+                ensureIconInHand('player', limit);
+            }
+
+            logAction(`${who === 'player' ? 'あなた' : 'CPU'}がトータル${player.hand.length}枚になるようドロー`);
+        }
+
+        function ensureIconInHand(who, limit) {
+            let hasIcon = gameState[who].hand.some(c => c.type === 'icon');
+            let attempts = 0;
+
+            // 手札にイコンがなく、デッキにイコンが残っている限り再抽選
+            // 無限ループ防止のため最大10回まで
+            while (!hasIcon && attempts < 10 && gameState[who].deck.some(c => c.type === 'icon')) {
+                // 手札をすべてデッキに戻してシャッフル
+                gameState[who].deck.push(...gameState[who].hand);
+                gameState[who].hand = [];
+                shuffle(gameState[who].deck);
+
+                // 再度引く
+                while (gameState[who].hand.length < limit && gameState[who].deck.length > 0) {
+                    gameState[who].hand.push(gameState[who].deck.pop());
+                }
+
+                hasIcon = gameState[who].hand.some(c => c.type === 'icon');
+                attempts++;
+            }
+
+            if (attempts > 0) {
+                logAction('初手イコン保証のため手札を再配布しました');
+            }
+        }
+
+        async function endPlayerTurn() {
+            // オートプレイ/ガイドモード以外では確認ダイアログを表示
+            if (!autoTestActive && !gameState.isGuideMode) {
+                const confirmed = await showCustomConfirm('ターン終了', 'ターンを終了しますか？');
+                if (!confirmed) {
+                    return; // キャンセルされた場合は何もしない
+                }
+            }
+
+            executeEndPlayerTurn();
+        }
+
+        function executeEndPlayerTurn() {
+            console.log('executeEndPlayerTurn called');
+            logAction('<カウントステップ> 開始');
+
+            countStep('player');
+            console.log('countStep done, VP:', gameState.player.vp);
+
+            if (checkVictory()) {
+                console.log('Victory detected');
+                return;
+            }
+
+            applyClockChange('player');
+            console.log('Clock change done, clock:', gameState.doomsdayClock);
+            renderAll();
+
+            if (checkDoomsday()) {
+                console.log('Doomsday detected');
+                return;
+            }
+
+            console.log('Starting CPU turn');
+            setTimeout(startCpuTurn, 200);
+        }
+
+        function cpuTakeTurn() {
+            const cpu = gameState.cpu;
+
+            // ヘルパー: カードをプレイできるかチェック
+            function canPlayCard(card) {
+                const otherCards = cpu.hand.filter(c => c.uid !== card.uid);
+                return otherCards.length >= card.cost;
+            }
+
+            // ヘルパー: カードをプレイ（コスト支払い含む）
+            function playCard(card) {
+                const costCards = cpu.hand.filter(c => c.uid !== card.uid).slice(0, card.cost);
+                cpu.hand = cpu.hand.filter(c => c.uid !== card.uid);
+                costCards.forEach(c => {
+                    cpu.hand = cpu.hand.filter(x => x.uid !== c.uid);
+                    cpu.discard.push(c);
+                });
+                return costCards.length;
+            }
+
+            // ヘルパー: イコンを1体プレイ
+            function playIcon() {
+                const icons = cpu.hand.filter(c => c.type === 'icon' && canPlayCard(c));
+                if (icons.length > 0 && cpu.field.length < 3) {
+                    // コストの低いイコンを優先
+                    icons.sort((a, b) => a.cost - b.cost);
+                    const icon = icons[0];
+                    playCard(icon);
+                    cpu.field.push(icon);
+                    logAction(`CPUが【${icon.name}】を展開`);
+                    return true;
+                }
+                return false;
+            }
+
+            // ヘルパー: ファブラを1枚プレイ
+            function playFabula() {
+                const fabulas = cpu.hand.filter(c => c.type === 'fabula' && canPlayCard(c));
+                if (fabulas.length > 0) {
+                    const fabula = fabulas[0];
+                    playCard(fabula);
+                    cpu.discard.push(fabula);
+                    logAction(`CPUが【${fabula.name}】を発動`);
+                    resolveEffect(fabula, 'cpu');
+                    return true;
+                }
+                return false;
+            }
+
+            // ヘルパー: 強奪を試行（プレイヤー保持 or 中央にある場合）
+            function trySnatch() {
+                // CPUがすでに保持していれば不要
+                const cpuHoldsIt = cpu.field.some(c => c && c.uid === gameState.macguffin.holder);
+                if (cpuHoldsIt) return false;
+                if (gameState.snatchBlocked) return false;
+                if (cpu.field.length === 0) return false;
+
+                const snatchCost = 2;
+                if (cpu.hand.length >= snatchCost) {
+                    const costCards = cpu.hand.splice(0, snatchCost);
+                    costCards.forEach(c => cpu.discard.push(c));
+
+                    // CPUのイコンにマクガフィンを移動
+                    const cpuIcon = cpu.field.find(c => c);
+                    if (cpuIcon) {
+                        // Animation: From (current holder or center) -> To (cpuIcon)
+                        // Note: cpuTakeTurn is called from setTimeout, so we can't easily await here without blocking the chain?
+                        // cpuTakeTurn logic continues after this return true...
+                        // Actually trySnatch returns true, then cpuTakeTurn ends with setTimeout.
+                        // We need to await animation before returning true?
+                        // If we make trySnatch async, we must await it in cpuTakeTurn.
+                        // cpuTakeTurn is not async, but it can be.
+
+                        // For now, fire-and-forget animation + sync logic update (as verified for destroyCard) works,
+                        // BUT visually we want the icon to arrive before we shout about it?
+                        // If we update state immediately, renderAll moves the icon immediately.
+                        // animateMacGuffinMove logic: StartPos -> Logic -> Render -> EndPos -> Animate.
+                        // So the icon will jump to new holder, then a flyer will fly from old to new.
+                        // Use 'await' to ensure smooth flow if possible.
+                        // But trySnatch is inside cpuTakeTurn which expects bool.
+                        // Let's use the fire-and-forget pattern with callback:
+                        const oldHolder = gameState.macguffin.holder;
+                        animateMacGuffinMove(oldHolder, cpuIcon.uid, () => {
+                            gameState.macguffin.holder = cpuIcon.uid;
+                            logAction(`CPUがマクガフィンを強奪！【${cpuIcon.name}】が保持`);
+                            flashScreen('red');
+                            renderAll();
+                        });
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+
+
+            // === メインAIロジック (Revised) ===
+            // 1. 場にイコンが0枚 -> 手札にイコンがあればコストが足りる限り出す (最低コスト)
+            if (cpu.field.length === 0) {
+                const icons = cpu.hand.filter(c => c.type === 'icon' && canPlayCard(c));
+                if (icons.length > 0) {
+                    // 最低コスト
+                    icons.sort((a, b) => a.cost - b.cost);
+                    const icon = icons[0];
+                    playCard(icon);
+                    cpu.field.push(icon);
+                    logAction(`CPUが【${icon.name}】を展開`);
+                    renderAll();
+                    setTimeout(cpuTakeTurn, 1500); // Continue turn
+                    return;
+                }
+            }
+
+            // 2. 場にイコンが1枚以上 -> マクガフィン強奪優先
+            if (cpu.field.length > 0) {
+                if (trySnatch()) {
+                    renderAll();
+                    setTimeout(cpuTakeTurn, 1500);
+                    return;
+                }
+            }
+
+            // 3. 追加でイコンを出す (3体まで, 最大コスト優先)
+            if (cpu.field.length < 3) {
+                const icons = cpu.hand.filter(c => c.type === 'icon' && canPlayCard(c));
+                if (icons.length > 0) {
+                    // 最大コスト
+                    icons.sort((a, b) => b.cost - a.cost);
+                    const icon = icons[0];
+                    playCard(icon);
+                    cpu.field.push(icon);
+                    logAction(`CPUが【${icon.name}】を追加展開`);
+                    renderAll();
+                    setTimeout(cpuTakeTurn, 1500);
+                    return;
+                }
+            }
+
+            // 4. ファブラ使用 (コスト足りる限り)
+            if (playFabula()) {
+                renderAll();
+                setTimeout(cpuTakeTurn, 1500);
+                return;
+            }
+
+            // 5. ターン終了
+            renderAll();
+            setTimeout(() => {
+                logAction('<カウントステップ> 開始');
+                countStep('cpu');
+                if (checkVictory()) return;
+                applyClockChange('cpu');
+                renderAll();
+                if (checkDoomsday()) return;
+                setTimeout(startPlayerTurn, 200);
+            }, 200);
+        }
+
+        // Calculate effective influence (including card effects)
+        function getEffectiveInfluence(card, who) {
+            if (!card) return 0;
+            let influence = card.influence || 0;
+
+            // 路地裏の反抗者 (pe_icon_rebel): 基本因果律1、他の民衆1体につき+1
+            if (card.id === 'pe_icon_rebel') {
+                // Count OTHER People icons (excluding self)
+                const otherPeopleCount = gameState[who].field.filter(c =>
+                    c && c.faction === 'people' && c.uid !== card.uid
+                ).length;
+                // Add +1 per other People icon
+                influence += otherPeopleCount;
+            }
+
+            return influence;
+        }
+
+        function countStep(who) {
+            const player = gameState[who];
+            const holderUID = gameState.macguffin.holder;
+
+            // Check if this player's icon holds the MacGuffin
+            const holderIcon = player.field.find(c => c && c.uid === holderUID);
+            if (holderIcon) {
+                // Only the holder's influence counts for VP
+                const holderInfluence = getEffectiveInfluence(holderIcon, who);
+                player.vp += holderInfluence;
+                if (holderInfluence > 0) {
+                    logAction(`${who === 'player' ? 'あなた' : 'CPU'}が${holderInfluence}VPを獲得`);
+                }
+            }
+        }
+
+        function applyClockChange(who) {
+            // ターン終了したプレイヤーの場にいるイコンのclock値を合計
+            let totalClock = 0;
+            gameState[who].field.forEach(c => {
+                if (c) totalClock += c.clock;
+            });
+
+            // 合計値-1を終末時計に加算
+            const clockChange = totalClock - 1;
+
+            if (clockChange !== 0) {
+                gameState.doomsdayClock += clockChange;
+                // 終末時計は0未満にならない（最低0）
+                if (gameState.doomsdayClock < 0) {
+                    gameState.doomsdayClock = 0;
+                }
+                logAction(`終末時計が${clockChange > 0 ? '+' : ''}${clockChange}変動 → ${gameState.doomsdayClock}`);
+                if (clockChange < 0) flashScreen('red');
+            } else {
+                logAction(`終末時計: 変動なし (${gameState.doomsdayClock})`);
+            }
+        }
+
+        function checkVictory() {
+            // 1. 先にVP10点
+            if (gameState.player.vp >= 10) {
+                showVictory(true, '因果律勝利 (10点先取)');
+                return true;
+            }
+            if (gameState.cpu.vp >= 10) {
+                showVictory(false, 'CPUの因果律勝利 (10点先取)');
+                return true;
+            }
+            return false;
+        }
+
+        function checkDoomsday() {
+            if (gameState.doomsdayClock <= 0) {
+                // まずVP比較で判定
+                let winner = gameState.player.vp > gameState.cpu.vp ? 'player'
+                    : gameState.cpu.vp > gameState.player.vp ? 'cpu'
+                        : null;
+
+                // VPが同数の場合のみマクガフィン保持者で判定
+                if (winner === null) {
+                    const holderUID = gameState.macguffin.holder;
+                    if (holderUID) {
+                        if (gameState.player.field.some(c => c.uid === holderUID)) winner = 'player';
+                        if (gameState.cpu.field.some(c => c.uid === holderUID)) winner = 'cpu';
+                    }
+                }
+
+                // 勝敗に応じた文言（因果律勝利/因果律敗北）
+                const reason = winner === 'player' ? '因果律勝利 (勝利点判定)' : '因果律敗北 (勝利点判定)';
+                showVictory(winner === 'player', reason);
+                return true;
+            }
+            return false;
+        }
+
+        function showVictory(isWin, reason) {
+            const screen = document.getElementById('victory-screen');
+            const text = document.getElementById('victory-text');
+            const sub = document.getElementById('victory-sub');
+
+            text.textContent = isWin ? 'VICTORY' : 'DEFEAT';
+            text.className = 'victory-text ' + (isWin ? 'win' : 'lose');
+            sub.textContent = reason;
+
+            if (reason.includes('引き分け')) {
+                text.textContent = 'DRAW';
+                text.style.color = '#ccc';
+                text.style.textShadow = '0 0 20px #888';
+            } else {
+                text.textContent = isWin ? 'VICTORY' : 'DEFEAT';
+            }
+            screen.style.display = 'flex';
+
+            // リザルト画面でもログウィンドウを表示
+            document.getElementById('log-container').style.display = 'block';
+        }
+
+        // === プレイヤーアクション ===
+        function toggleCardSelection(card) {
+            const idx = gameState.selectedCards.findIndex(c => c.uid === card.uid);
+            if (idx > -1) {
+                gameState.selectedCards.splice(idx, 1);
+            } else {
+                gameState.selectedCards.push(card);
+            }
+
+            // 強奪コスト選択モードの場合は専用のボタン更新
+            if (gameState.waitingForAction === 'snatch_cost_selection') {
+                updateSnatchButton();
+            } else {
+                updateActionButton(); // Check if cost is met for confirmation
+            }
+            renderAll();
+        }
+
+        function tryPlayCard() {
+            const selected = gameState.selectedCards;
+            if (selected.length < 1) return false;
+
+            // イコンのプレイ
+            const icons = selected.filter(c => c.type === 'icon');
+            const fabulas = selected.filter(c => c.type === 'fabula');
+            const others = selected.filter(c => !icons.includes(c) && !fabulas.includes(c));
+
+            if (icons.length === 1 && fabulas.length === 0) {
+                const icon = icons[0];
+                if (gameState.player.field.length >= 3) {
+                    logAction('場がいっぱいです！');
+                    return false;
+                }
+                if (others.length >= icon.cost) {
+                    const costCards = others.slice(0, icon.cost);
+                    gameState.player.hand = gameState.player.hand.filter(c => c.uid !== icon.uid);
+                    costCards.forEach(c => {
+                        gameState.player.hand = gameState.player.hand.filter(x => x.uid !== c.uid);
+                        gameState.player.discard.push(c);
+                    });
+                    gameState.player.field.push(icon);
+                    gameState.selectedCards = [];
+                    logAction(`【${icon.name}】を展開`);
+
+                    // マクガフィン自動装備を削除（強奪でのみマクガフィンを取得）
+
+                    renderAll();
+                    return true;
+                }
+            }
+
+            // ファブラのプレイ
+            if (fabulas.length === 1 && icons.length === 0) {
+                const fabula = fabulas[0];
+
+                // 同名ファブラ制限チェック
+                if (gameState.fabulasUsedThisTurn.includes(fabula.id)) {
+                    showCustomAlert('使用制限', `【${fabula.name}】は1ターンに1回しか使用できません。`);
+                    return false;
+                }
+
+                if (others.length >= fabula.cost) {
+                    gameState.fabulasUsedThisTurn.push(fabula.id); // 使用済みとして記録
+                    const costCards = others.slice(0, fabula.cost);
+                    gameState.player.hand = gameState.player.hand.filter(c => c.uid !== fabula.uid);
+                    costCards.forEach(c => {
+                        gameState.player.hand = gameState.player.hand.filter(x => x.uid !== c.uid);
+                        gameState.player.discard.push(c);
+                    });
+
+                    logAction(`【${fabula.name}】を使用！`);
+                    resolveEffect(fabula, 'player');
+
+                    gameState.player.discard.push(fabula);
+                    gameState.selectedCards = [];
+                    renderAll();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // === Confirm Modal Logic ===
+        function showConfirmModal() {
+            const modal = document.getElementById('confirm-modal');
+            const title = document.getElementById('confirm-title');
+            const msg = document.getElementById('confirm-message');
+
+            if (gameState.pendingAction) {
+                const action = gameState.pendingAction;
+                const name = action.card ? action.card.name : '対象';
+                if (action.type === 'snatch') {
+                    title.textContent = '強奪の確認';
+                    msg.textContent = `マクガフィンを強奪しますか？`;
+                } else if (action.type === 'summon') {
+                    title.textContent = '召喚の確認';
+                    msg.textContent = `【${name}】を召喚しますか？`;
+                } else {
+                    title.textContent = '発動の確認';
+                    msg.textContent = `【${name}】を発動しますか？`;
+                }
+            }
+
+            const yesBtn = document.getElementById('confirm-yes');
+            const noBtn = document.getElementById('confirm-no');
+
+            // Clone to ensure clean listeners
+            const newYes = yesBtn.cloneNode(true);
+            const newNo = noBtn.cloneNode(true);
+            yesBtn.parentNode.replaceChild(newYes, yesBtn);
+            noBtn.parentNode.replaceChild(newNo, noBtn);
+
+            newYes.onclick = executeConfirmedAction;
+            newNo.onclick = () => {
+                modal.style.display = 'none';
+            };
+            modal.style.display = 'flex';
+        }
+
+        async function executeConfirmedAction() {
+            const modal = document.getElementById('confirm-modal');
+            modal.style.display = 'none';
+            hideInstruction();
+
+            const action = gameState.pendingAction;
+            if (!action) return;
+
+            const costs = gameState.selectedCards;
+
+            // Remove costs from hand
+            costs.forEach(c => {
+                gameState.player.hand = gameState.player.hand.filter(h => h.uid !== c.uid);
+                gameState.player.discard.push(c);
+            });
+
+            if (action.type === 'summon') {
+                // Animate First
+                animateCardMove(action.card, 'hand-area', 'player-field', async () => {
+                    // Move card from hand to field
+                    gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
+                    gameState.player.field.push(action.card);
+                    logAction(`【${action.card.name}】を召喚`);
+
+                    renderAll(); // Render after data update
+
+                    // Commander (kn_icon_commander) Trigger
+                    if (action.card.id === 'kn_icon_commander') {
+                        if (gameState.player.hand.length > 0) {
+                            const result = await showCustomConfirm("【前線指揮官】効果", "手札1枚を消費してコスト0で強奪を行いますか？");
+                            if (result) {
+                                const disc = gameState.player.hand.pop();
+                                gameState.player.discard.push(disc);
+                                gameState.snatchCostOverride = 0;
+                                logAction("前線指揮官の号令！強奪を開始します");
+                                setTimeout(() => startSnatchMode(), 500);
+                            }
+                        }
+                    }
+                });
+
+            } else if (action.type === 'fabula') {
+                // 使用済みファブラIDを記録
+                gameState.fabulasUsedThisTurn.push(action.card.id);
+                // Move card from hand to discard and resolve effect
+                gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
+                gameState.player.discard.push(action.card);
+                logAction(`【${action.card.name}】を発動`);
+                renderAll();
+                resolveEffect(action.card, 'player');
+
+            } else if (action.type === 'snatch') {
+                // Execute snatch and return early
+                gameState.snatchInProgress = true; // 強奪処理開始
+                gameState.pendingAction = null;
+                gameState.selectedCards = [];
+                executeSnatch();
+                return;
+            }
+
+            // Reset state
+            gameState.pendingAction = null;
+            gameState.waitingForAction = null;
+            gameState.selectedCards = [];
+            updateActionButton();
+            renderAll();
+        }
+
+        // === Card Drop Play Initiation ===
+        function initiateCardPlayFromDrop(card) {
+            // 同名ファブラ制限チェック
+            if (card.type === 'fabula' && gameState.fabulasUsedThisTurn.includes(card.id)) {
+                showCustomAlert('使用制限', `【${card.name}】は1ターンに1回しか使用できません。`);
+                return;
+            }
+
+            gameState.pendingAction = {
+                type: card.type === 'icon' ? 'summon' : 'fabula',
+                card: card,
+                cost: card.cost
+            };
+
+            // コスト対象カードを取得（カード自身を除いた手札）
+            const availableCostCards = gameState.player.hand.filter(c => c.uid !== card.uid);
+
+            // 手札枚数がコストと同じか、コスト0の場合は自動選択
+            if (card.cost === 0 || availableCostCards.length === card.cost) {
+                // 自動でコストカードを選択
+                gameState.selectedCards = availableCostCards.slice(0, card.cost);
+                gameState.waitingForAction = 'cost_payment';
+                // 直接確認ボックスを表示
+                showConfirmModal();
+            } else {
+                // 通常のコスト選択フロー
+                showInstruction(`【${card.name}】を使用します。コストを選択してください (${card.cost}枚)`);
+                gameState.waitingForAction = 'cost_payment';
+                gameState.selectedCards = [];
+                updateActionButton();
+                renderAll();
+            }
+        }
+
+        function showInstruction(text) {
+            const popup = document.getElementById('instruction-popup');
+            if (popup) {
+                popup.textContent = text;
+                popup.classList.add('active');
+            }
+        }
+
+        function hideInstruction() {
+            const popup = document.getElementById('instruction-popup');
+            if (popup) popup.classList.remove('active');
+        }
+
+        function updateActionButton() {
+            const btn = document.getElementById('action-execute-btn');
+            if (!btn) return;
+
+            // Default hide snatch-all button
+            const snatchAllBtn = document.getElementById('snatch-all-btn');
+            if (snatchAllBtn) snatchAllBtn.style.display = 'none';
+
+            if (gameState.waitingForAction === 'cost_payment') {
+                const needed = gameState.pendingAction ? gameState.pendingAction.cost : 0;
+                const have = gameState.selectedCards.length;
+                if (have >= needed) {
+                    // Auto-show confirm modal when cost is met (only if not already open)
+                    if (!gameState.confirmModalOpen) {
+                        hideInstruction();
+                        showConfirmModal();
+                    }
+                } else {
+                    btn.textContent = `コスト選択中 (${have}/${needed})`;
+                    btn.disabled = true;
+                    btn.onclick = null;
+                }
+            } else if (gameState.waitingForAction === 'snatch_cost_selection') {
+                // 強奪コスト選択中はupdateSnatchButtonに委譲
+                updateSnatchButton();
+            } else {
+                // Snatch button state - 新仕様: コストは選択制
+                const playerHasIcon = gameState.player.field.some(c => c && c.type === 'icon');
+                const hasHand = gameState.player.hand.length >= 1;
+                const canSnatch = !gameState.snatchBlocked && playerHasIcon && hasHand;
+
+                btn.textContent = '強奪';
+
+                if (canSnatch) {
+                    btn.disabled = false;
+                    btn.onclick = startSnatchMode;
+                } else {
+                    btn.disabled = true;
+                    btn.onclick = null;
+                }
+            }
+        }
+
+        function showConfirmModal() {
+            // アクション処理中または既にモーダルが開いている場合は何もしない
+            if (gameState.actionInProgress || gameState.confirmModalOpen) {
+                console.log('[DEBUG] showConfirmModal skipped - action in progress or modal already open');
+                return;
+            }
+            console.log('[DEBUG] showConfirmModal called');
+            gameState.confirmModalOpen = true; // ポップアップが開いている
+            const modal = document.getElementById('confirm-modal');
+            const titleEl = document.getElementById('confirm-title');
+            const msgEl = document.getElementById('confirm-message');
+
+            if (gameState.pendingAction) {
+                const action = gameState.pendingAction;
+                const name = action.card ? action.card.name : '対象';
+                if (action.type === 'snatch') {
+                    titleEl.textContent = '強奪の確認';
+                    msgEl.textContent = `マクガフィンを強奪しますか？`;
+                } else if (action.type === 'summon') {
+                    titleEl.textContent = '召喚の確認';
+                    msgEl.textContent = `【${name}】を召喚しますか？`;
+                } else {
+                    titleEl.textContent = '発動の確認';
+                    msgEl.textContent = `【${name}】を発動しますか？`;
+                }
+            }
+
+            const yesBtn = document.getElementById('confirm-yes');
+            if (yesBtn) {
+                yesBtn.onclick = executeConfirmedAction;
+                console.log('[DEBUG] Assigned executeConfirmedAction to confirm-yes');
+            } else {
+                console.error('[DEBUG] confirm-yes button NOT FOUND');
+            }
+
+            document.getElementById('confirm-no').onclick = () => {
+                gameState.confirmModalOpen = false; // ポップアップが閉じた
+                modal.style.display = 'none';
+            };
+            modal.style.display = 'block';
+        }
+
+        async function executeConfirmedAction() {
+            console.log('[DEBUG] executeConfirmedAction triggered');
+            gameState.actionInProgress = true; // アクション処理開始
+            gameState.confirmModalOpen = false; // ポップアップが閉じた
+            document.getElementById('confirm-modal').style.display = 'none';
+            hideInstruction();
+
+            const action = gameState.pendingAction;
+            if (!action) return;
+
+            const costs = gameState.selectedCards;
+
+            // Remove costs from hand
+            costs.forEach(c => {
+                gameState.player.hand = gameState.player.hand.filter(h => h.uid !== c.uid);
+                gameState.player.discard.push(c);
+            });
+
+            if (action.type === 'summon') {
+                // Animate First
+                animateCardMove(action.card, 'hand-area', 'player-field', async () => {
+                    // Move card from hand to field
+                    // This part is executed AFTER the animation completes.
+                    gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
+                    gameState.player.field.push(action.card);
+                    logAction(`【${action.card.name}】を召喚`);
+
+                    renderAll(); // Render after data update
+
+                    // Commander (kn_icon_commander) Trigger
+                    if (action.card.id === 'kn_icon_commander') {
+                        if (gameState.player.hand.length > 0) {
+                            const result = await showCustomConfirm("【前線指揮官】効果", "手札1枚を消費してコスト0で強奪を行いますか？");
+                            if (result) {
+                                const disc = gameState.player.hand.pop();
+                                gameState.player.discard.push(disc);
+                                gameState.snatchCostOverride = 0;
+                                logAction("前線指揮官の号令！強奪を開始します");
+                                setTimeout(() => startSnatchMode(), 500);
+                            }
+                        }
+                    }
+                });
+
+            } else if (action.type === 'fabula') {
+                // Animate to center/field or just dissolve?
+                // User asked for "when putting icon on field". Fabula goes to discard.
+                // Let's animate it to center area or discard pile?
+                // For now, let's keep it simple or animate strictly for Icons as requested.
+                // User said "When putting Icon on field... show as if moving from hand".
+                // I will add animation for Fabula too for consistency (hand -> discard area?)
+                // Or just keep logic simple.
+
+                // Move card from hand to discard and resolve effect
+                gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
+                gameState.player.discard.push(action.card);
+                logAction(`【${action.card.name}】を発動`);
+
+                // 同名ファブラ使用制限のために記録
+                gameState.fabulasUsedThisTurn.push(action.card.id);
+
+                renderAll();
+                resolveEffect(action.card, 'player');
+
+            } else if (action.type === 'snatch') {
+                // Execute snatch and return early - executeSnatch manages its own state
+                gameState.pendingAction = null;
+                gameState.selectedCards = [];
+                executeSnatch();
+                return; // Don't reset waitingForAction - snatch needs it for target selection
+            }
+
+            // Reset state (only for non-snatch actions)
+            gameState.pendingAction = null;
+            gameState.waitingForAction = null;
+            gameState.selectedCards = [];
+            gameState.actionInProgress = false; // アクション処理完了
+            updateActionButton();
+            renderAll();
+        }
+
+        function startSnatchMode() {
+            // 手札が1枚未満なら強奪不可
+            if (gameState.player.hand.length < 1) {
+                logAction('手札が足りません！強奪できません。');
+                return;
+            }
+
+            gameState.snatchInProgress = true; // 強奪処理開始（コスト選択〜結果まで）
+
+            // 強奪コスト選択モードを開始（手札選択形式）
+            gameState.waitingForAction = 'snatch_cost_selection';
+            gameState.selectedCards = []; // 選択をリセット
+            gameState.pendingAction = { type: 'snatch' };
+
+            showInstruction('強奪コストとして手札を選択してください（最低1枚）');
+            updateSnatchButton();
+            renderAll();
+        }
+
+        // 成功率計算: 50% + (cost) * 5%、最大100%
+        function calculateSnatchSuccessRate(cost) {
+            return Math.min(100, 50 + (cost) * 5);
+        }
+
+        // 強奪ボタンを更新（選択枚数と成功率を表示）
+        function updateSnatchButton() {
+            const btn = document.getElementById('action-execute-btn');
+            if (!btn) return;
+
+            if (gameState.waitingForAction === 'snatch_cost_selection') {
+                const snatchAllBtn = document.getElementById('snatch-all-btn');
+                if (snatchAllBtn) {
+                    snatchAllBtn.style.display = 'block';
+                    if (gameState.player.hand.length > 0) {
+                        const allRate = calculateSnatchSuccessRate(gameState.player.hand.length);
+                        snatchAllBtn.textContent = `全手札で強奪 (${allRate}%)`;
+                        snatchAllBtn.onclick = () => executeSnatchAll();
+                        snatchAllBtn.disabled = false;
+                    } else {
+                        snatchAllBtn.textContent = '全手札で強奪';
+                        snatchAllBtn.disabled = true;
+                    }
+                }
+
+                const selectedCount = gameState.selectedCards.length;
+                if (selectedCount >= 1) {
+                    const successRate = calculateSnatchSuccessRate(selectedCount);
+                    btn.textContent = `強奪実行 (${selectedCount}枚 / 成功率${successRate}%)`;
+                    btn.disabled = false;
+                    btn.onclick = () => executeSnatchWithSelectedCards();
+                } else {
+                    btn.textContent = '強奪 (手札を選択)';
+                    btn.disabled = true;
+                    btn.onclick = null;
+                }
+            } else {
+                // 強奪モード以外では隠す
+                const snatchAllBtn = document.getElementById('snatch-all-btn');
+                if (snatchAllBtn) snatchAllBtn.style.display = 'none';
+            }
+        }
+
+        // 新規: 全手札を使用して強奪実行
+        function executeSnatchAll() {
+            gameState.selectedCards = [...gameState.player.hand];
+            executeSnatchWithSelectedCards();
+        }
+
+        // 選択された手札で強奪を実行
+        async function executeSnatchWithSelectedCards() {
+            const selectedCards = gameState.selectedCards;
+            const cost = selectedCards.length;
+            const successRate = calculateSnatchSuccessRate(cost);
+
+            // 状態をリセット
+            gameState.waitingForAction = null;
+            gameState.pendingAction = null;
+            hideInstruction();
+
+            // コストを支払う（選択された手札を消費）
+            selectedCards.forEach(c => {
+                gameState.player.hand = gameState.player.hand.filter(h => h.uid !== c.uid);
+                gameState.player.discard.push(c);
+            });
+            gameState.selectedCards = [];
+            logAction(`強奪コスト: ${cost}枚消費（成功率: ${successRate}%）`);
+            renderAll();
+
+            // 成功判定
+            // 成功判定
+            let roll = Math.random() * 100;
+            // ガイドモード中は必ず成功
+            if (gameState.isGuideMode) {
+                console.log('[Guide] 強奪を強制成功させます');
+                roll = 0;
+            }
+            const isSuccess = roll < successRate;
+
+            if (!isSuccess) {
+                // 失敗ポップアップ
+                await showCustomAlert('強奪失敗！', '強奪は失敗に終わりました…');
+                flashScreen('red');
+                gameState.snatchInProgress = false; // 強奪処理終了
+                gameState.lastActionCompletedTime = Date.now();
+                updateActionButton();
+                renderAll();
+                return;
+            }
+
+            // 成功ポップアップ
+            await showCustomAlert('強奪成功！', 'マクガフィンを奪い取りました！');
+
+            // 成功時: マクガフィンを取得するイコンを選択
+            const myIcons = gameState.player.field.filter(c => c);
+
+            if (myIcons.length === 0) {
+                logAction('場にイコンがいません！強奪できません。');
+                gameState.snatchInProgress = false; // 強奪処理終了
+                updateActionButton();
+                renderAll();
+                return;
+            }
+
+            // If only 1 icon, auto-select
+            if (myIcons.length === 1) {
+                const targetIcon = myIcons[0];
+                const oldHolder = gameState.macguffin.holder;
+                // Add Animation
+                animateMacGuffinMove(oldHolder, targetIcon.uid, () => {
+                    gameState.macguffin.holder = targetIcon.uid;
+                    logAction(`マクガフィンを強奪し【${targetIcon.name}】が保持しました！`);
+                    flashScreen('flash-snatch');
+                    gameState.lastActionCompletedTime = Date.now(); // アクション完了時刻を記録
+                    gameState.snatchInProgress = false; // 強奪処理終了
+                    updateActionButton();
+                    renderAll();
+                    checkVictory();
+                });
+                return;
+            }
+
+            // Multiple icons: Selection Mode
+            console.log('[DEBUG Snatch] Multiple icons, entering selection mode');
+            showInstruction('マクガフィンを持たせるイコンを選択してください');
+            gameState.waitingForAction = 'snatch_target_selection';
+            console.log('[DEBUG Snatch] waitingForAction set to:', gameState.waitingForAction);
+            renderAll();
+        }
+
+        function resolveEffect(card, owner) {
+            const opponent = owner === 'player' ? 'cpu' : 'player';
+
+            switch (card.id) {
+                case 'pe_fab_network': // 地下の連絡網
+                    const peopleCount = gameState[owner].field.filter(c => c && c.faction === 'people').length;
+                    const drawAmount = peopleCount + 1; // 民衆の数+1枚ドロー
+                    let drawnCount = 0;
+                    for (let i = 0; i < drawAmount; i++) {
+                        if (gameState[owner].deck.length === 0) {
+                            if (gameState[owner].discard.length > 0) {
+                                gameState[owner].deck = [...gameState[owner].discard];
+                                gameState[owner].discard = [];
+                                shuffle(gameState[owner].deck);
+                                logAction(`${owner === 'cpu' ? 'CPU' : 'あなた'}のデッキ再構築`);
+                            } else {
+                                break;
+                            }
+                        }
+                        if (gameState[owner].deck.length > 0) {
+                            gameState[owner].hand.push(gameState[owner].deck.pop());
+                            drawnCount++;
+                        }
+                    }
+                    logAction(`${owner === 'cpu' ? 'CPU' : 'あなた'}は${drawnCount}枚ドローした（民衆: ${peopleCount} + 1）`);
+                    break;
+
+                case 'kn_fab_raid': // 鉄槌の急襲
+                    if (gameState[opponent].field.length > 0) {
+                        const target = gameState[opponent].field[gameState[opponent].field.length - 1]; // Last usually
+                        if (target.id === 'cl_icon_bishop') {
+                            logAction('対象が【鎮魂の司教】のため効果無効');
+                        } else {
+                            const wasHolder = (gameState.macguffin.holder === target.uid);
+                            if (destroyCard(target, opponent, 'effect')) {
+                                if (wasHolder) {
+                                    const myIcons = gameState[owner].field.filter(c => c);
+                                    if (myIcons.length > 0) {
+                                        // Animation from Center (since destroyed) -> MyIcon
+                                        animateMacGuffinMove(null, myIcons[0].uid, () => {
+                                            gameState.macguffin.holder = myIcons[0].uid;
+                                            logAction(`マクガフィンを強奪し【${myIcons[0].name}】に装備！`);
+                                            renderAll();
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    break;
+
+                case 'kn_fab_march': // 焦土の進軍
+                    for (let i = 0; i < 2; i++) {
+                        if (gameState[owner].deck.length > 0) {
+                            gameState[owner].hand.push(gameState[owner].deck.pop());
+                        }
+                    }
+                    // 騎士イコンがいる場合のみ強奪コスト0
+                    const hasKnightIcon = gameState[owner].field.some(c => c && c.faction === 'knight' && c.type === 'icon');
+                    if (hasKnightIcon) {
+                        gameState.snatchCostOverride = 0;
+                        logAction('2枚ドロー。このターン、騎士イコンの強奪コスト0。');
+                    } else {
+                        logAction('2枚ドロー。（騎士イコンがいないため強奪コスト無料効果なし）');
+                    }
+                    break;
+
+                case 'cl_fab_miracle': // 奇跡の顕現
+                    if (gameState[owner].discard.length > 0) {
+                        const iconsInDiscard = gameState[owner].discard.filter(c => c.type === 'icon');
+                        if (iconsInDiscard.length > 0 && gameState[owner].field.length < 3) {
+                            const icon = iconsInDiscard.pop();
+                            gameState[owner].discard = gameState[owner].discard.filter(c => c.uid !== icon.uid);
+                            gameState[owner].field.push(icon);
+                            logAction(`捨て札から【${icon.name}】を場に出した`);
+
+                            if (owner === 'player') {
+                                if (confirm("マクガフィンを移動させますか？")) {
+                                    const oldHolder = gameState.macguffin.holder;
+                                    animateMacGuffinMove(oldHolder, icon.uid, () => {
+                                        gameState.macguffin.holder = icon.uid;
+                                        logAction("マクガフィンを移動させました");
+                                        renderAll();
+                                    });
+                                }
+                            } else {
+                                const oldHolder = gameState.macguffin.holder;
+                                animateMacGuffinMove(oldHolder, icon.uid, () => {
+                                    gameState.macguffin.holder = icon.uid;
+                                    renderAll();
+                                });
+                            }
+                        }
+                    }
+                    break;
+
+                case 'ar_fab_edict': // 無慈悲な勅令
+                    const allField = [...gameState.player.field, ...gameState.cpu.field];
+                    const saintActive = allField.some(c => c && c.id === 'cl_icon_saint');
+
+                    if (saintActive) {
+                        logAction('【終焉を嘆く聖女】により破棄が無効化されました');
+                        // Fallback to destroy logic?
+                        // Logic: "Consume 2, if CANNOT, destroy 1".
+                        // If Discard is blocked by Saint, we CANNOT consume. So we attempt destroy.
+                    } else {
+                        if (gameState[opponent].hand.length >= 2) {
+                            for (let i = 0; i < 2; i++) {
+                                gameState[opponent].discard.push(gameState[opponent].hand.pop());
+                            }
+                            logAction(`${opponent === 'cpu' ? 'CPU' : 'あなた'}は手札2枚を消費させられた`);
+                            return; // Success, no destroy
+                        }
+                    }
+
+                    // Destroy Fallback
+                    if (gameState[opponent].field.length > 0) {
+                        const target = gameState[opponent].field[gameState[opponent].field.length - 1];
+                        if (target.id !== 'cl_icon_bishop') {
+                            destroyCard(target, opponent, 'effect');
+                        }
+                    }
+                    break;
+
+                case 'cl_fab_prayer': // 静寂の祈り
+                    gameState[owner].protectedUntilNextTurn = true;
+                    logAction('次の自ターン開始時まで、自軍のイコンは破壊されません');
+                    break;
+
+                case 'ar_fab_execute': // 王権の強制執行
+                    if (gameState.macguffin.holder) {
+                        const holderUID = gameState.macguffin.holder;
+                        const enemyHas = gameState[opponent].field.some(c => c && c.uid === holderUID);
+                        if (enemyHas) {
+                            const myIcons = gameState[owner].field.filter(c => c);
+                            if (myIcons.length > 0) {
+                                const oldHolder = gameState.macguffin.holder;
+                                animateMacGuffinMove(oldHolder, myIcons[0].uid, () => {
+                                    gameState.macguffin.holder = myIcons[0].uid;
+                                    logAction('王権の強制執行！マクガフィンを強制徴収しました');
+                                    renderAll();
+                                });
+                            }
+                        } else {
+                            logAction('相手がマクガフィンを持っていません');
+                        }
+                    }
+                    break;
+
+                case 'pe_fab_riot': // 暴動の火蓋
+                    if (gameState[opponent].field.length > 0) {
+                        const target = gameState[opponent].field[gameState[opponent].field.length - 1];
+                        if (target.id !== 'cl_icon_bishop') {
+                            if (target.cost >= 2) {
+                                destroyCard(target, opponent, 'effect');
+                            } else {
+                                // Animation Wrapper if holding MacGuffin
+                                if (gameState.macguffin.holder === target.uid) {
+                                    const oldHolder = gameState.macguffin.holder;
+                                    animateMacGuffinMove(oldHolder, null, () => {
+                                        gameState[opponent].field.pop(); // Assumes target is last? YES (line 2894)
+                                        gameState[opponent].hand.push(target);
+                                        logAction(`【${target.name}】を手札に戻した`);
+                                        gameState.macguffin.holder = null;
+                                        renderAll();
+                                    });
+                                } else {
+                                    gameState[opponent].field.pop();
+                                    gameState[opponent].hand.push(target);
+                                    logAction(`【${target.name}】を手札に戻した`);
+                                }
+                            }
+                        } else {
+                            logAction('対象が【鎮魂の司教】のため効果無効');
+                        }
+                    }
+                    break;
+            }
+        }
+
+        function destroyCard(target, owner, source) {
+            // Prayer Protection
+            if (gameState[owner].protectedUntilNextTurn) {
+                logAction(`【${target.name}】は加護により破壊を免れた`);
+                return false;
+            }
+
+            // Guardian Knight Check
+            if (target.id === 'kn_icon_guardian' && gameState[owner].hand.length > 0) {
+                if (owner === 'player') {
+                    if (confirm(`【${target.name}】が破壊されます。手札1枚を消費して身代わりにしますか？`)) {
+                        const disc = gameState.player.hand.pop();
+                        gameState.player.discard.push(disc);
+                        logAction(`手札を消費し【${target.name}】の破壊を無効化`);
+                        return false;
+                    }
+                } else {
+                    if (Math.random() > 0.2) {
+                        const disc = gameState[owner].hand.pop();
+                        gameState[owner].discard.push(disc);
+                        logAction(`CPUは手札を消費して【${target.name}】を守った`);
+                        return false;
+                    }
+                }
+            }
+
+            // Destroy
+            const idx = gameState[owner].field.indexOf(target);
+            if (idx > -1) {
+                gameState[owner].field.splice(idx, 1);
+                gameState[owner].discard.push(target);
+                logAction(`【${target.name}】は破壊された`);
+                if (gameState.macguffin.holder === target.uid) {
+                    const oldHolder = gameState.macguffin.holder;
+                    // Fire-and-forget animation
+                    animateMacGuffinMove(oldHolder, null, () => {
+                        gameState.macguffin.holder = null;
+                        logAction('マクガフィンが解放・中央へ移動');
+                        renderAll();
+                    });
+                }
+                return true;
+            }
+            return false;
+        }
+
+        // === 強奪処理 (コスト支払い後に呼ばれる) ===
+        function executeSnatch() {
+            // Cost has already been paid by executeConfirmedAction
+            // This function handles target selection only
+
+            const myIcons = gameState.player.field.filter(c => c);
+
+            if (myIcons.length === 0) {
+                logAction('場にイコンがいません！強奪できません。');
+                gameState.waitingForAction = null;
+                gameState.actionInProgress = false; // アクション処理完了
+                gameState.snatchInProgress = false; // 強奪処理完了
+                renderAll();
+                return;
+            }
+
+            // If only 1 icon, auto-select
+            if (myIcons.length === 1) {
+                const targetIcon = myIcons[0];
+                const oldHolder = gameState.macguffin.holder;
+                // Add Animation
+                animateMacGuffinMove(oldHolder, targetIcon.uid, () => {
+                    gameState.macguffin.holder = targetIcon.uid;
+                    logAction(`マクガフィンを強奪し【${targetIcon.name}】が保持しました！`);
+                    flashScreen('flash-snatch');
+                    gameState.waitingForAction = null;
+                    gameState.lastActionCompletedTime = Date.now(); // アクション完了時刻を記録
+                    gameState.actionInProgress = false; // アクション処理完了
+                    gameState.snatchInProgress = false; // 強奪処理完了
+                    renderAll();
+                    checkVictory();
+                });
+                return;
+            }
+
+            // Multiple icons: Selection Mode
+            console.log('[DEBUG Snatch] Multiple icons, entering selection mode');
+            showInstruction('マクガフィンを持たせるイコンを選択してください');
+            gameState.waitingForAction = 'snatch_target_selection';
+            // actionInProgressはtrueのまま - イコン選択後にリセットされる
+            console.log('[DEBUG Snatch] waitingForAction set to:', gameState.waitingForAction);
+            renderAll();
+        }
+
+        // Custom Confirm Dialog (async)
+        function showCustomConfirm(title, message) {
+            return new Promise((resolve) => {
+                gameState.confirmModalOpen = true; // ポップアップが開いている
+                const modal = document.getElementById('confirm-modal');
+                document.getElementById('confirm-title').textContent = title;
+                document.getElementById('confirm-message').textContent = message;
+                modal.style.display = 'flex';
+
+                const yesBtn = document.getElementById('confirm-yes');
+                const noBtn = document.getElementById('confirm-no');
+
+                // Clone buttons to remove old listeners
+                const newYes = yesBtn.cloneNode(true);
+                const newNo = noBtn.cloneNode(true);
+                yesBtn.parentNode.replaceChild(newYes, yesBtn);
+                noBtn.parentNode.replaceChild(newNo, noBtn);
+
+                newYes.onclick = () => {
+                    gameState.confirmModalOpen = false; // ポップアップが閉じた
+                    modal.style.display = 'none';
+                    resolve(true);
+                };
+                newNo.onclick = () => {
+                    gameState.confirmModalOpen = false; // ポップアップが閉じた
+                    modal.style.display = 'none';
+                    resolve(false);
+                };
+            });
+        }
+
+        function showCustomAlert(title, message) {
+            return new Promise(resolve => {
+                gameState.confirmModalOpen = true; // モーダル開く
+                const modal = document.getElementById('alert-modal');
+                document.getElementById('alert-title').innerHTML = title;
+                document.getElementById('alert-message').innerHTML = message; // textContent -> innerHTML
+
+                const okBtn = document.getElementById('alert-ok');
+                const newOk = okBtn.cloneNode(true);
+                okBtn.parentNode.replaceChild(newOk, okBtn);
+
+                newOk.onclick = () => {
+                    gameState.confirmModalOpen = false; // モーダル閉じる
+                    modal.style.display = 'none';
+                    resolve();
+                };
+
+                modal.style.display = 'block';
+            });
+        }
+
+        // Handle Icon Selection on Field
+        async function handleFieldCardClick(card, owner) {
+            if (owner !== 'player') {
+                // Clicking Enemy Icon
+                if (gameState.waitingForAction === 'revolutionary_target_selection') {
+                    // Execute Revolutionary Effect
+                    const result = await showCustomConfirm('十二の芝む崋の待つ', `【${card.name}】の効果を無効化しますか？`);
+                    if (result) {
+                        logAction(`革命家の効果により【${card.name}】の効果が無効化されました`);
+                        hideInstruction();
+                        gameState.waitingForAction = null;
+                        renderAll();
+                    }
+                }
+                // Raid Target Selection
+                if (gameState.waitingForAction === 'raid_target_selection') {
+                    if (card.id === 'cl_icon_bishop') {
+                        await showCustomConfirm('選択不可', '【鎮魂の司教】は効果の対象に選べません');
+                        return;
+                    }
+                    const result = await showCustomConfirm('破壊確認', `【${card.name}】を破壊しますか？`);
+                    if (result) {
+                        destroyCard(card, 'cpu', 'effect');
+                        hideInstruction();
+                        gameState.waitingForAction = null;
+                        renderAll();
+                    }
+                }
+                return;
+            }
+
+            // Clicking My Icon
+            if (gameState.waitingForAction === 'snatch_target_selection') {
+                const result = await showCustomConfirm('強奪確認', `【${card.name}】にマクガフィンを保持させますか？`);
+                if (result) {
+                    const oldHolder = gameState.macguffin.holder;
+                    await animateMacGuffinMove(oldHolder, card.uid, () => {
+                        gameState.macguffin.holder = card.uid;
+                        logAction(`マクガフィンを強奪し【${card.name}】が保持しました！`);
+                        flashScreen('flash-snatch');
+                        hideInstruction();
+                        gameState.waitingForAction = null;
+                        gameState.lastActionCompletedTime = Date.now(); // アクション完了時刻を記録
+                        gameState.actionInProgress = false; // アクション処理完了
+                        gameState.snatchInProgress = false; // 強奪処理完了
+                        renderAll();
+                        checkVictory();
+                    });
+                } else {
+                    // キャンセル時もフラグをリセット
+                    gameState.actionInProgress = false;
+                    gameState.snatchInProgress = false;
+                    gameState.lastActionCompletedTime = Date.now();
+                    renderAll(); // キャンセル後の状態を反映して再描画
+                }
+            } else if (gameState.waitingForAction === null && gameState.currentPlayer === 'player') {
+                // Active Skill Trigger: Revolutionary
+                if (card.id === 'pe_icon_patriot') { // 名もなき革命家
+                    const result = await showCustomConfirm('効果発動', '【名もなき革命家】の効果を発動しますか？\n（相手イコンの効果を無効化）');
+                    if (result) {
+                        showInstruction('無効化する相手のイコンを選択してください');
+                        gameState.waitingForAction = 'revolutionary_target_selection';
+                        renderAll();
+                    }
+                }
+            }
+        }
+        // === 自動テストプレイ機能 ===
+        let autoTestActive = false;
+        let testPlayTargetFaction = 'knight'; // Default, will randomize
+
+        function runAutoTestPlayFromGuide() {
+            closeGuide();
+            runAutoTestPlay();
+        }
+
+        async function runAutoTestPlay() {
+            console.log('--- AUTO TEST PLAY STARTED ---');
+            autoTestActive = true;
+
+            // Show Return Button & Hide Guide Button (optional, but requested return button)
+            document.getElementById('return-title-btn').style.display = 'block';
+
+            startGame();
+
+            // Randomize Draft Target
+            const factions = ['knight', 'clergy', 'noble'];
+            testPlayTargetFaction = factions[Math.floor(Math.random() * factions.length)];
+            console.log('Draft Target Faction:', testPlayTargetFaction);
+
+            await sleep(100);
+            autoTestLoop();
+        }
+
+        async function autoTestLoop() {
+            if (!autoTestActive) return;
+
+            // Check Game End
+            const victoryScreen = document.getElementById('victory-screen');
+            if (victoryScreen.style.display === 'flex') {
+                console.log('--- AUTO TEST FINISHED (Game Over) ---');
+                autoTestActive = false;
+                return;
+            }
+
+            // 確認モーダルが開いている場合は自動でYESをクリック
+            if (gameState.confirmModalOpen) {
+                const confirmModal = document.getElementById('confirm-modal');
+                if (confirmModal && confirmModal.style.display !== 'none') {
+                    const yesBtn = document.getElementById('confirm-yes');
+                    if (yesBtn) {
+                        console.log('[autoTestLoop] 確認モーダル検出 - 自動でYESをクリック');
+                        yesBtn.click();
+                        await sleep(100);
+                    }
+                }
+                setTimeout(autoTestLoop, 1000);
+                return;
+            }
+
+            // アラートモーダルが開いている場合は自動でOKをクリック
+            const alertModal = document.getElementById('alert-modal');
+            if (alertModal && alertModal.style.display !== 'none') {
+                const okBtn = document.getElementById('alert-ok');
+                if (okBtn) {
+                    console.log('[autoTestLoop] アラートモーダル検出 - 自動でOKをクリック');
+                    okBtn.click();
+                    await sleep(100);
+                }
+                setTimeout(autoTestLoop, 1000);
+                return;
+            }
+
+            if (gameState.phase === 'draft') {
+                await autoDraft();
+            } else if (gameState.phase === 'war') {
+                console.log('[autoTestLoop] War phase. waitingForAction:', gameState.waitingForAction, 'currentPlayer:', gameState.currentPlayer);
+                if (gameState.currentPlayer === 'player') {
+                    await autoWarPlayer();
+                } else {
+                    // CPU turn handles itself, just wait
+                    await sleep(100);
+                }
+            }
+
+            setTimeout(autoTestLoop, 800);
+        }
+
+        // testPlayTargetFaction declared above
+
+        async function autoDraft() {
+            console.log('[autoDraft] Called. DraftTurn:', gameState.draftTurn);
+            if (gameState.draftTurn !== 'player') return;
+
+            // Use Shared Strategy Logic
+            const availableSlots = gameState.draftSlots
+                .map((card, index) => ({ card, index }))
+                .filter(s => s.card !== null);
+
+            console.log(`[autoDraft] Available Slots: ${availableSlots.length}`);
+
+            let pickObj = null;
+            // 12枚所持でイコンなしの特別ルール
+            console.log(`[autoDraft] Current Deck Size: ${gameState.player.deck.length}`);
+            if (gameState.player.deck.length === 12 && !gameState.player.deck.some(c => c.type === 'icon')) {
+                console.log('[autoDraft] 12 cards, no icon. Forcing Icon pick.');
+                // Force Icon
+                const icons = availableSlots.filter(s => s.card.type === 'icon');
+                if (icons.length > 0) pickObj = icons[0];
+            }
+
+            if (!pickObj) {
+                // 通常戦略
+                const currentDeck = gameState.player.deck;
+                // Note: getDraftStrategyPick expects (deck, target, slots)
+                // availableSlots here is [{card, index}, ...], but helper expects similar structure?
+                // Helper defined as: candidates = availableSlots.filter(...)
+                // Yes, structure matches.
+                pickObj = getDraftStrategyPick(currentDeck, testPlayTargetFaction, availableSlots);
+            }
+
+            if (pickObj) {
+                console.log(`[autoDraft] Picking: ${pickObj.card.name} (Index: ${pickObj.index})`);
+                // Simulate Click
+                playerPickCard(pickObj.index);
+                // Wait small amount for refill
+                await sleep(50);
+            } else {
+                console.error('[autoDraft] No pick object found?!');
+            }
+
+            // Check if done
+            if (gameState.player.deck.length >= 13) {
+                console.log('[autoDraft] Drafting Complete. Confirming deck.');
+                finishDraft();
+            }
+        }
+
+
+
+        let isAutoWarRunning = false;
+        async function autoWarPlayer() {
+            console.log('[AutoWar] Enter. isAutoWarRunning:', isAutoWarRunning, 'waitingForAction:', gameState.waitingForAction);
+            if (isAutoWarRunning) return;
+            isAutoWarRunning = true;
+
+            try {
+                // Handle Confirmation Modals
+                const confirmModal = document.getElementById('confirm-modal');
+                if (confirmModal && confirmModal.style.display !== 'none') {
+                    // Safe click handling
+                    const yesBtn = document.getElementById('confirm-yes');
+                    if (yesBtn) {
+                        if (yesBtn.onclick) {
+                            console.log('[AutoWar] Clicking Confirm YES');
+                            yesBtn.click();
+                        } else {
+                            console.warn('[AutoWar] YES button has no handler. Re-assigning executeConfirmedAction.');
+                            // Recovery mechanism
+                            yesBtn.onclick = executeConfirmedAction;
+                            yesBtn.click();
+                        }
+                    }
+                    await sleep(100);
+                    return;
+                }
+
+                // Handle Cost Payment
+                if (gameState.waitingForAction === 'cost_payment') {
+                    const needed = gameState.pendingAction.cost;
+                    const current = gameState.selectedCards.length;
+                    if (current < needed) {
+                        const unselected = gameState.player.hand.filter(c => !gameState.selectedCards.some(s => s.uid === c.uid) && c.uid !== gameState.pendingAction.card?.uid);
+                        if (unselected.length > 0) {
+                            toggleCardSelection(unselected[0]);
+                        }
+                    } else {
+                        // Modal should be open, but if not, trigger button
+                        const btn = document.getElementById('action-execute-btn');
+                        if (btn && !btn.disabled) btn.click();
+                    }
+                    return;
+                }
+
+                // Snatch Target Selection
+                if (gameState.waitingForAction === 'snatch_target_selection') {
+                    const inputs = document.querySelectorAll('#player-field .card.filled');
+                    if (inputs.length > 0) inputs[0].click();
+                    return;
+                }
+
+                // 強奪コスト選択モード
+                if (gameState.waitingForAction === 'snatch_cost_selection') {
+                    console.log('[AutoWar] 強奪コスト選択モード検出');
+                    // まだ手札を選択していない場合は選択
+                    if (gameState.selectedCards.length < 1 && gameState.player.hand.length > 0) {
+                        console.log('[AutoWar] 手札を選択中...');
+                        toggleCardSelection(gameState.player.hand[0]);
+                        await sleep(100); // 選択が反映されるのを待つ
+                    }
+                    // 強奪実行ボタンをクリック
+                    const btn = document.getElementById('action-execute-btn');
+                    console.log('[AutoWar] 強奪ボタン状態:', btn ? `disabled=${btn.disabled}` : 'ボタンなし');
+                    if (btn && !btn.disabled) {
+                        console.log('[AutoWar] 強奪実行ボタンをクリック');
+                        btn.click();
+                    }
+                    return;
+                }
+
+                if (gameState.currentPlayer !== 'player') return;
+
+                const me = gameState.player;
+                const myIcons = me.field.filter(c => c && c.type === 'icon');
+
+                // 1. 自分のターンが来たら、CPU(プレイヤー)の場にイコンが0枚の場合、手札にイコンがあれば最低コストのイコンを優先して場に出す
+                if (myIcons.length === 0) {
+                    const iconsInHand = me.hand.filter(c => c.type === 'icon');
+                    if (iconsInHand.length > 0) {
+                        // コスト計算: 手札枚数 - 1 (自身) >= コスト
+                        const playableIcons = iconsInHand.filter(c => me.hand.length - 1 >= c.cost);
+                        if (playableIcons.length > 0) {
+                            // 最低コスト優先
+                            playableIcons.sort((a, b) => a.cost - b.cost);
+                            console.log('[AutoWar] Priority 1: Summoning Min Cost Icon');
+                            initiateCardPlayFromDrop(playableIcons[0]);
+                            return;
+                        }
+                    }
+                }
+
+                // 2. CPU(プレイヤー)の場にイコンが1枚以上ある場合、コストが足りていれば優先してマクガフィンを強奪する
+                if (myIcons.length >= 1) {
+                    const snatchCost = Math.max(0, 2 - gameState.snatchCostReduction);
+                    if (!gameState.macguffin.holder && !gameState.snatchBlocked) {
+                        if (me.hand.length >= snatchCost) {
+                            console.log('[AutoWar] Priority 2: Snatching MacGuffin');
+                            startSnatchMode();
+                            return;
+                        }
+                    }
+                }
+
+                // 3. コストが余っているなら、3体になるまで追加でイコンを最大コスト優先で出す
+                if (myIcons.length < 3) {
+                    const iconsInHand = me.hand.filter(c => c.type === 'icon');
+                    if (iconsInHand.length > 0) {
+                        const playableIcons = iconsInHand.filter(c => me.hand.length - 1 >= c.cost);
+                        if (playableIcons.length > 0) {
+                            // 最大コスト優先
+                            playableIcons.sort((a, b) => b.cost - a.cost);
+                            console.log('[AutoWar] Priority 3: Summoning Max Cost Additional Icon');
+                            initiateCardPlayFromDrop(playableIcons[0]);
+                            return;
+                        }
+                    }
+                }
+
+                // 4. コストが余っているなら、ファブラをコストが足りる限り出す
+                const fabulasInHand = me.hand.filter(c => c.type === 'fabula');
+                if (fabulasInHand.length > 0) {
+                    const playableFabulas = fabulasInHand.filter(c => me.hand.length - 1 >= c.cost);
+                    if (playableFabulas.length > 0) {
+                        // ランダムまたは先頭で良いが、今回は先頭
+                        console.log('[AutoWar] Priority 4: Playing Fabula');
+                        initiateCardPlayFromDrop(playableFabulas[0]);
+                        return;
+                    }
+                }
+
+                // 5. 行動不能ならターン終了
+                console.log('[AutoWar] Priority 5: Ending Turn');
+                endPlayerTurn();
+                // Prevent immediate re-trigger
+                await sleep(500);
+            } finally {
+                isAutoWarRunning = false;
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // === レンダリング ===
+        function createCardElement(card) {
+            const div = document.createElement('div');
+            div.className = `card faction-${card.faction}`;
+            // Remove hardcoded height/width if present in CSS, rely on flex container sizes
+            // Stats should be visible now with flex-grow
+
+            if (gameState.selectedCards.some(c => c.uid === card.uid)) div.classList.add('selected');
+            if (gameState.macguffin.holder === card.uid) { // マクガフィン保持イコンにクラス追加
+                div.classList.add('has-macguffin');
+            }
+
+            div.title = `【${card.name}】\n${card.effect}\nコスト: ${card.cost} / 時計: ${card.clock >= 0 ? '+' : ''}${card.clock} / 因果律: ${card.influence}`;
+
+            div.innerHTML = `
+            <div class="card-image ${card.faction}">
+                ${card.image ? `<img src="${card.image}" alt="${card.name}" onerror="this.style.display='none';this.parentElement.textContent='${card.style}'">` : card.style}
+            </div>
+            <div class="card-body">
+                <div class="card-name">【${card.name}】</div>
+                <div class="card-type">${card.type === 'icon' ? 'イコン' : 'ファブラ'}</div>
+                <div class="card-stats">
+                    ${card.cost} / ${card.clock} / ${card.influence}
+                </div>
+            </div>
+        `;
+            return div;
+        }
+
+        function renderAll() {
+            renderField('player');
+            renderField('cpu');
+            renderHand();
+            renderStats();
+        }
+
+        function renderField(who) {
+            const container = document.getElementById(`${who}-field`);
+            container.innerHTML = '';
+
+            // Drop zone for player field
+            if (who === 'player') {
+                container.ondragover = (e) => {
+                    e.preventDefault();
+                    container.classList.add('drag-over');
+                };
+                container.ondragleave = () => {
+                    container.classList.remove('drag-over');
+                };
+                container.ondrop = (e) => {
+                    e.preventDefault();
+                    container.classList.remove('drag-over');
+                    container.classList.remove('drop-target');
+                    const cardUID = e.dataTransfer.getData('text/plain');
+                    const card = gameState.player.hand.find(c => c.uid === cardUID);
+                    if (card) {
+                        initiateCardPlayFromDrop(card);
+                    }
+                };
+            }
+
+            for (let i = 0; i < 3; i++) {
+                const card = gameState[who].field[i];
+                if (card) {
+                    const el = createCardElement(card);
+                    el.classList.add('filled');
+                    // Add click handler for Field Interaction
+                    el.onclick = () => handleFieldCardClick(card, who);
+                    // Add pointer cursor if interaction valid
+                    if (who === 'player' && (gameState.waitingForAction === 'snatch_target_selection' || (gameState.currentPlayer === 'player' && card.id === 'pe_icon_patriot'))) {
+                        el.style.cursor = 'pointer';
+                        el.style.border = '2px solid gold';
+                    }
+                    // Snatch Target Selection Mode - GREEN highlight with CSS class
+                    if (who === 'player' && gameState.waitingForAction === 'snatch_target_selection') {
+                        el.classList.add('snatch-target-highlight');
+                    }
+                    if (who === 'cpu' && gameState.waitingForAction === 'revolutionary_target_selection') {
+                        el.style.cursor = 'pointer';
+                        el.style.border = '2px solid red';
+                    }
+                    if (who === 'cpu' && gameState.waitingForAction === 'raid_target_selection') {
+                        el.style.cursor = 'pointer';
+                        el.style.boxShadow = '0 0 20px #ff4444';
+                        el.style.border = '3px solid #ff4444';
+                    }
+                    container.appendChild(el);
+                } else {
+                    // Check for pending summon visualization (Ghost Card)
+                    // If this slot is the next available one, and we have a pending summon
+                    const isNextSlot = (i === gameState[who].field.length);
+                    if (who === 'player' && isNextSlot && gameState.pendingAction && gameState.pendingAction.type === 'summon' && gameState.pendingAction.card) {
+                        const pCard = gameState.pendingAction.card;
+                        const el = createCardElement(pCard);
+                        el.classList.add('pending-summon');
+                        // Ensure it looks like a card but ghosted
+                        el.style.opacity = '0.6';
+                        el.style.border = '2px dashed var(--gold)';
+                        container.appendChild(el);
+                    } else {
+                        // Standard empty slot
+                        const slot = document.createElement('div');
+                        slot.className = 'card empty-slot'; // Use 'card' class for consistent sizing
+                        // slot.textContent = `Empty`; // Optional
+                        container.appendChild(slot);
+                    }
+                }
+            }
+
+            // マクガフィンを保持しているイコンにアイコンを表示
+            gameState[who].field.forEach((card, idx) => {
+                if (card && card.uid === gameState.macguffin.holder) {
+                    const slot = container.children[idx]; // field-slot.filled
+                    // 既存のmacguffin-field-iconがあれば削除（念のため）
+                    const existing = slot.querySelector('.macguffin-field-icon');
+                    if (existing) existing.remove();
+
+                    const mgDiv = document.createElement('div');
+                    mgDiv.className = 'macguffin-field-icon';
+                    mgDiv.innerHTML = `<img src="images/sys_macguffin.png" alt="👑" title="マクガフィン保持中">`;
+                    slot.appendChild(mgDiv);
+                }
+            });
+        }
+
+        function renderHand() {
+            const handDiv = document.getElementById('hand-area');
+            handDiv.innerHTML = '';
+            gameState.player.hand.forEach(card => {
+                // Skip rendering if this card is currently pending action (moved to field visually)
+                if (gameState.pendingAction && gameState.pendingAction.card && gameState.pendingAction.card.uid === card.uid) {
+                    return;
+                }
+
+                const el = createCardElement(card);
+                el.draggable = true;
+                el.ondragstart = (e) => {
+                    e.dataTransfer.setData('text/plain', card.uid);
+                    if (gameState.selectedCards.length > 0) { // Clear selection on drag interact
+                        gameState.selectedCards = [];
+                        renderAll();
+                    }
+                    document.getElementById('player-field').classList.add('drop-target');
+                };
+                el.ondragend = () => {
+                    el.classList.remove('dragging');
+                    document.getElementById('player-field').classList.remove('drop-target');
+                };
+
+                // Click still works for selection (for costs etc)
+                el.onclick = () => {
+                    toggleCardSelection(card);
+                    if (!tryPlayCard()) renderAll();
+                };
+                handDiv.appendChild(el);
+            });
+
+            document.getElementById('selected-count').textContent = gameState.selectedCards.length;
+
+            document.getElementById('selected-count').textContent = gameState.selectedCards.length;
+
+            // Delegate button state to updateActionButton
+            updateActionButton();
+
+            // 手札が0枚になったら自動的にターン終了確認を表示
+            // オートプレイ/ガイドモード/確認モーダルが開いている場合はスキップ
+            // autoEndTurnPendingフラグで重複呼び出しを防止
+            // 何らかのアクション中（強奪ターゲット選択など）はスキップ
+            // 手札が0枚になったら自動的にターン終了確認を表示
+            if (gameState.phase === 'war' &&
+                gameState.currentPlayer === 'player' &&
+                gameState.player.hand.length === 0 &&
+                !autoTestActive &&
+                !gameState.isGuideMode &&
+                !gameState.autoEndTurnPending) {
+
+                const noPopups = !gameState.confirmModalOpen && gameState.waitingForAction === null;
+                const notBusy = !gameState.actionInProgress && !gameState.pendingAction && !gameState.snatchInProgress;
+                const timePassed = (Date.now() - gameState.lastActionCompletedTime > 1000);
+
+                if (noPopups && notBusy) {
+                    if (timePassed) {
+                        gameState.autoEndTurnPending = true;
+                        setTimeout(() => {
+                            // 再度条件を確認
+                            if (gameState.player.hand.length === 0 &&
+                                !gameState.actionInProgress &&
+                                !gameState.confirmModalOpen &&
+                                !gameState.snatchInProgress) {
+                                endPlayerTurn();
+                            } else {
+                                gameState.autoEndTurnPending = false;
+                            }
+                        }, 500);
+                    } else {
+                        // クールダウン待ち：残り時間待機してから再チェック
+                        const remaining = 1000 - (Date.now() - gameState.lastActionCompletedTime) + 100;
+                        setTimeout(() => renderHand(), remaining);
+                    }
+                }
+            }
+        }
+
+        function renderCpuHand() {
+            const container = document.getElementById('cpu-hand-visual');
+            container.innerHTML = '';
+            const count = gameState.cpu.hand.length;
+
+            // Limit visual density if too many cards (cap at 10 visuals or just show all?)
+            // Just show all for now.
+            for (let i = 0; i < count; i++) {
+                const card = document.createElement('div');
+                card.className = 'cpu-hand-card';
+                // Slight rotation for natural look
+                const rotate = (i - count / 2) * 5;
+                card.style.transform = `rotate(${rotate}deg)`;
+                // User asked for "Show top 1/4".
+                // We set height to 90px but container is only 40px, so they will be cut off or overlapping?
+                // Actually container overflow is visible by default.
+                // We want them to look like they are tucked behind the field or just sitting there.
+                // Let's position relative.
+                container.appendChild(card);
+            }
+        }
+
+        function renderStats() {
+            document.getElementById('doomsday-clock').textContent = gameState.doomsdayClock;
+            document.getElementById('player-vp').textContent = gameState.player.vp;
+            document.getElementById('player-vp').textContent = gameState.player.vp;
+            document.getElementById('cpu-vp').textContent = gameState.cpu.vp;
+            renderCpuHand(); // Update visual hand
+
+            document.getElementById('player-area').classList.toggle('active', gameState.currentPlayer === 'player');
+            document.getElementById('cpu-area').classList.toggle('active', gameState.currentPlayer === 'cpu');
+            document.getElementById('turn-indicator').textContent = gameState.currentPlayer === 'player' ? 'YOUR TURN' : 'CPU TURN';
+
+            // マクガフィン中央表示制御：誰も保持していない場合のみ表示
+            const centerMG = document.getElementById('center-macguffin');
+            if (centerMG) {
+                const holderUID = gameState.macguffin.holder;
+                const playerHolds = gameState.player.field.some(c => c && c.uid === holderUID);
+                const cpuHolds = gameState.cpu.field.some(c => c && c.uid === holderUID);
+                if (!playerHolds && !cpuHolds) {
+                    centerMG.style.display = 'flex';
+                } else {
+                    centerMG.style.display = 'none';
+                }
+            }
+        }
+
+        // === ユーティリティ ===
+        function logAction(msg) {
+            // ログ保存
+            const d = new Date();
+            const timeStr = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+            const turnPrefix = gameState.turnCount > 0 ? `[Turn ${gameState.turnCount}] ` : '';
+            gameLogHistory.push(`[${timeStr}] ${turnPrefix}${msg}`);
+
+            const log = document.getElementById('action-log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+
+            entry.textContent = turnPrefix + msg;
+            log.insertBefore(entry, log.firstChild);
+            // ログ制限を削除 - 全てのログを保持しスクロール可能に
+        }
+
+        function downloadLogs() {
+            let content = "=== ICON OF ENDING - BATTLE LOG ===\n\n";
+            content += "--- GAME LOGS ---\n";
+            content += gameLogHistory.join("\n");
+            content += "\n\n--- CONSOLE LOGS ---\n";
+            content += consoleLogHistory.join("\n");
+
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hour = String(d.getHours()).padStart(2, '0');
+            const minute = String(d.getMinutes()).padStart(2, '0');
+
+            const filename = `battle_log_${year}${month}${day}_${hour}${minute}.txt`;
+
+            // Blob approach with fallback for Chrome compatibility
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+
+            // Try using Blob URL first (works better on http://)
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+
+            // Chrome on file:// protocol workaround: use target="_blank" to trigger download dialog
+            if (window.location.protocol === 'file:' && navigator.userAgent.includes('Chrome')) {
+                // For Chrome on local files, show save dialog prompt
+                a.target = '_blank';
+            }
+
+            document.body.appendChild(a);
+            a.click();
+
+            // Cleanup
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+        }
+
+        function showPhase(name) {
+            const el = document.getElementById('phase-display');
+            el.textContent = name;
+            el.style.opacity = '1';
+            setTimeout(() => el.style.opacity = '0', 800);
+        }
+
+        function flashScreen(color) {
+            const el = document.getElementById('flash-overlay');
+            el.className = `flash-overlay ${color}`;
+            el.style.opacity = '1';
+            setTimeout(() => el.style.opacity = '0', 200);
+        }
+
+        function openCardList() {
+            const grid = document.getElementById('full-card-grid');
+            grid.innerHTML = '';
+
+            // Set title
+            document.getElementById('card-list-title').textContent = '全カード一覧';
+
+            CARDS.forEach(card => {
+                // コンテナ作成
+                const entry = document.createElement('div');
+                entry.className = 'card-list-entry';
+
+                // 左側：カード画像（既存のcreateCardElementを使用）
+                const cardEl = createCardElement(card);
+                cardEl.onclick = null; // クリック無効
+                entry.appendChild(cardEl);
+
+                // 右側：詳細情報
+                const details = document.createElement('div');
+                details.className = 'card-list-details';
+
+                const factionName = { knight: '騎士', clergy: '聖職', noble: '貴族', people: '民衆' }[card.faction] || card.faction;
+                // Compact Single Line Details
+                details.innerHTML = `
+                    <div class="card-list-row-header">
+                        <span class="card-list-name">【${card.name}】</span>
+                        <span class="card-list-type">${card.type === 'icon' ? 'イコン' : 'ファブラ'} / ${factionName}</span>
+                        <span class="card-list-stats">コスト: ${card.cost} / 時計: ${card.clock} / 因果律: ${card.influence}</span>
+                    </div>
+                    <div class="card-list-effect">${card.effect || '（効果なし）'}</div>
+                `;
+
+                entry.appendChild(details);
+                grid.appendChild(entry);
+            });
+            document.getElementById('card-list-modal').style.display = 'block';
+        }
+
+        function openDeckList(who) {
+            const deck = gameState[who].deck;
+            const grid = document.getElementById('full-card-grid');
+            grid.innerHTML = '';
+
+            // Set title
+            document.getElementById('card-list-title').textContent = who === 'player' ? 'デッキリスト一覧 (あなた)' : 'デッキリスト一覧 (CPU)';
+
+            if (deck.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;padding:20px;">デッキが空です</p>';
+            } else {
+                deck.forEach(card => {
+                    const entry = document.createElement('div');
+                    entry.className = 'card-list-entry';
+                    const cardEl = createCardElement(card);
+                    cardEl.onclick = null;
+                    entry.appendChild(cardEl);
+
+                    const factionName = { knight: '騎士', clergy: '聖職', noble: '貴族', people: '民衆' }[card.faction] || card.faction;
+                    const details = document.createElement('div');
+                    details.className = 'card-list-details';
+                    // Compact Single Line Details
+                    details.innerHTML = `
+                        <div class="card-list-row-header">
+                            <span class="card-list-name">【${card.name}】</span>
+                            <span class="card-list-type">${card.type === 'icon' ? 'イコン' : 'ファブラ'} / ${factionName}</span>
+                            <span class="card-list-stats">コスト: ${card.cost} / 時計: ${card.clock} / 因果律: ${card.influence}</span>
+                        </div>
+                        <div class="card-list-effect">${card.effect || '（効果なし）'}</div>
+                    `;
+                    entry.appendChild(details);
+                    grid.appendChild(entry);
+                });
+            }
+
+            document.getElementById('card-list-modal').style.display = 'block';
+        }
+
+        function openDiscardList(who) {
+            const discard = gameState[who].discard;
+            const grid = document.getElementById('full-card-grid');
+            grid.innerHTML = '';
+
+            // Set title
+            document.getElementById('card-list-title').textContent = who === 'player' ? '捨て札一覧 (あなた)' : '捨て札一覧 (CPU)';
+
+            if (discard.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;padding:20px;">捨て札がありません</p>';
+            } else {
+                discard.forEach(card => {
+                    const entry = document.createElement('div');
+                    entry.className = 'card-list-entry';
+                    const cardEl = createCardElement(card);
+                    cardEl.onclick = null;
+                    entry.appendChild(cardEl);
+
+                    const factionName = { knight: '騎士', clergy: '聖職', noble: '貴族', people: '民衆' }[card.faction] || card.faction;
+                    const details = document.createElement('div');
+                    details.className = 'card-list-details';
+                    // Compact Single Line Details
+                    details.innerHTML = `
+                        <div class="card-list-row-header">
+                            <span class="card-list-name">【${card.name}】</span>
+                            <span class="card-list-type">${card.type === 'icon' ? 'イコン' : 'ファブラ'} / ${factionName}</span>
+                            <span class="card-list-stats">コスト: ${card.cost} / 時計: ${card.clock} / 因果律: ${card.influence}</span>
+                        </div>
+                        <div class="card-list-effect">${card.effect || '（効果なし）'}</div>
+                    `;
+                    entry.appendChild(details);
+                    grid.appendChild(entry);
+                });
+            }
+
+            document.getElementById('card-list-modal').style.display = 'block';
+        }
+
+        // === イベントリスナー ===
+        // Buttons have onclick in HTML, event listeners not needed here
+
+        // === モーダル操作 ===
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function openRules() {
+            document.getElementById('rules-modal').style.display = 'block';
+        }
+
+        function closeRules() {
+            closeModal('rules-modal');
+        }
+
+        // === ガイド操作 ===
+        function openGuide() {
+            document.getElementById('guide-modal').style.display = 'block';
+        }
+
+        function closeGuide() {
+            closeModal('guide-modal');
+        }
+
+        async function startGuideMode() {
+            // ゲーム設定初期化
+            startGame();
+            gameState.isGuideMode = true;
+
+            // ドラフト画面が表示されるのを少し待つ
+            await sleep(500);
+
+            await runGuideDraftPhase();
+        }
+
+        async function runGuideDraftPhase() {
+            await showGuideAlert("ここでデッキ枚数が13枚になるまで\nカードを選択してください");
+
+            // 自動ドラフト: 13枚になるまで
+            const targetCount = 13;
+
+            while (gameState.player.deck.length < targetCount) {
+                // 思考ルーチン:
+                // 1. 選択できる最低コストのイコンをランダムで選択 (イコン5枚まで)
+                // 2. イコンが5枚になったら、以降は選択できる最低コストのファブラを選択
+
+                const myIconCount = gameState.player.deck.filter(c => c.type === 'icon').length;
+                const slots = gameState.draftSlots.map((c, i) => ({ card: c, index: i })).filter(s => s.card !== null);
+
+                let pickIndex = -1;
+
+                if (myIconCount < 5) {
+                    // イコン優先
+                    let icons = slots.filter(s => s.card.type === 'icon');
+                    // 無ければファブラで妥協（ルール上はイコン優先だが無い場合もある）
+                    if (icons.length === 0) icons = slots;
+
+                    if (icons.length > 0) {
+                        // 最低コスト
+                        const minCost = Math.min(...icons.map(s => s.card.cost));
+                        const minCostIcons = icons.filter(s => s.card.cost === minCost);
+                        // ランダム
+                        const target = minCostIcons[Math.floor(Math.random() * minCostIcons.length)];
+                        pickIndex = target.index;
+                    }
+                } else {
+                    // ファブラ優先
+                    let fabulas = slots.filter(s => s.card.type === 'fabula');
+                    // 無ければイコン
+                    if (fabulas.length === 0) fabulas = slots;
+
+                    if (fabulas.length > 0) {
+                        // 最低コスト
+                        const minCost = Math.min(...fabulas.map(s => s.card.cost));
+                        const minCostFabulas = fabulas.filter(s => s.card.cost === minCost);
+                        // ランダム
+                        const target = minCostFabulas[Math.floor(Math.random() * minCostFabulas.length)];
+                        pickIndex = target.index;
+                    }
+                }
+
+                if (pickIndex !== -1) {
+                    // プレイヤーのピック実行
+                    playerPickCard(pickIndex);
+
+                    // CPUのピック待ち（playerPickCard内でCPUターンに切り替わり、CPUが思考してプレイヤーに戻すまで待つ）
+                    // playerPickCardは非同期ではないが、CPUのターン処理はsetTimeoutで行われるため待ちが必要
+                    while (gameState.draftTurn === 'cpu') {
+                        await sleep(100);
+                    }
+                    // 少しウェイト
+                    await sleep(300);
+                } else {
+                    console.error("Guide Draft: No pickable cards!?");
+                    break;
+                }
+            }
+
+            // ドラフト完了後、ウォーフェイズ開始待ち
+            while (gameState.phase !== 'war') {
+                await sleep(100);
+            }
+            // ウォーフェイズ画面への切り替え待ち
+            await sleep(1000);
+
+            await runGuideWarPhase();
+        }
+
+        async function runGuideWarPhase() {
+            // 1. マクガフィン説明
+            // ハイライト対象: マクガフィン画像そのものに変更して位置ずれ防止
+            // 中央を隠さないようにポップアップを下に表示
+            await showGuideAlert("中央にある丸い物体がマクガフィンです\n\nプレイヤーはこれを奪い合い、保持しているタイミングで得れる勝利点を競い合います", ".macguffin-img", "guide-position-bottom");
+
+            // 2. イコン展開説明
+            // ハイライト: プレイヤーの手札エリア全体または特定のカード
+            await showGuideAlert("手札からイコンを出してみましょう\n\nイコンは手札から場へドラッグアンドドロップで出せます", "#player-hand-container");
+
+            // 3. 自動イコン召喚（最低コスト）
+            const icons = gameState.player.hand.filter(c => c.type === 'icon');
+            if (icons.length > 0) {
+                // 最低コスト
+                icons.sort((a, b) => a.cost - b.cost);
+                const targetCard = icons[0];
+
+                // カードプレイ処理
+                initiateCardPlayFromDrop(targetCard);
+                // コスト支払い等の処理が必要だが、プレイガイドではコスト足りる前提/自動処理
+                // initiateCardPlayFromDrop -> waitingForAction='cost_payment' -> Auto Select Cost -> Execute
+
+                await sleep(500);
+                // コスト支払い自動化
+                if (gameState.waitingForAction === 'cost_payment') {
+                    const needed = gameState.pendingAction.cost;
+                    const current = 0;
+                    // 手札からコストを自動選択（プレイするカード以外）
+                    // selectedCardsにはプレイ対象は入らないはずだが念のため
+                    const payCards = gameState.player.hand.filter(c => c.uid !== targetCard.uid);
+                    for (let i = 0; i < needed; i++) {
+                        if (payCards[i]) toggleCardSelection(payCards[i]);
+                    }
+                    await sleep(500);
+                    // 実行ボタンクリック
+                    const btn = document.getElementById('action-execute-btn');
+                    if (btn) btn.click();
+
+                    // 確認モーダルYES
+                    await sleep(500);
+                    const yesBtn = document.getElementById('confirm-yes');
+                    if (yesBtn) yesBtn.click();
+                }
+
+                // アニメーション待ち
+                await sleep(1000);
+            }
+
+            // 4. 強奪説明
+            await showGuideAlert("場にイコンがいる場合、マクガフィンの強奪が行えます\n強奪の成功率は捨てた手札の枚数により変動します", "#action-execute-btn");
+
+            // 5. 強奪実行
+            // 強奪モード開始
+            startSnatchMode();
+            await sleep(500);
+
+            // コスト選択（1枚）
+            if (gameState.waitingForAction === 'snatch_cost_selection') {
+                if (gameState.player.hand.length > 0) {
+                    toggleCardSelection(gameState.player.hand[0]);
+                    await sleep(500);
+
+                    // 実行ボタンクリック（強制成功フラグが効くはず）
+                    const btn = document.getElementById('action-execute-btn');
+                    if (btn) btn.click();
+                }
+            }
+            // アニメーション待ち
+            await sleep(1500);
+
+            // 5.5 ファブラ説明
+            // 手札にファブラがあれば、コストを支払い実行することができます
+            await showGuideAlert("手札にファブラがあれば、コストを支払い実行することができます\n\nファブラは使い切りの強力な呪文です\nファブラも手札から場へドラッグアンドドロップで使用することが出来ます", "#player-hand-container");
+
+            // 6. ターン終了説明
+            await showGuideAlert("ターンを終了します\n\nイコンがマクガフィンを保持していた場合、勝利点を得ることができます", "#end-turn-btn");
+
+            // 7. 勝利点説明
+            await showGuideAlert("勝利点が先に10点獲得したプレイヤーの勝利になります");
+
+            // 8. 終末時計説明
+            await showGuideAlert("また、ターン終了時、終末時計が進みます\n\nこれが0になったタイミングでゲームが終了し、勝利点が高いプレイヤーの勝利です", "#doomsday-clock-container"); // ID要確認
+
+            // 9. 終了
+            // カスタムアラートの代わりに専用の終了ダイアログを出すか、showCustomAlertのボタンを書き換える
+            await showGuideEndPopup();
+        }
+
+        async function showGuideAlert(text, highlightSelector = null, positionClass = null) {
+            const overlay = document.getElementById('guide-overlay');
+            overlay.style.display = 'block';
+
+            let highlightedEl = null;
+
+            if (highlightSelector) {
+                highlightedEl = document.querySelector(highlightSelector);
+                if (highlightedEl) {
+                    highlightedEl.classList.add('guide-highlight');
+                }
+            }
+
+            // モーダルのz-index調整と背景透明化
+            const modal = document.getElementById('alert-modal');
+            const originalZ = modal.style.zIndex;
+            const originalBg = modal.style.background;
+
+            modal.style.zIndex = '3100';
+            modal.style.background = 'transparent'; // 背景透明化（ガイド中は暗転なし）
+
+            // プレイガイド用の幅広クラスを追加
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.classList.add('guide-mode-content');
+                // 位置指定クラスがあれば追加
+                if (positionClass) {
+                    modalContent.classList.add(positionClass);
+                }
+            }
+
+            const formattedText = text.replace(/\n/g, '<br>');
+            await showCustomAlert("プレイガイド", formattedText);
+
+            // クラス削除
+            if (modalContent) {
+                modalContent.classList.remove('guide-mode-content');
+                if (positionClass) {
+                    modalContent.classList.remove(positionClass);
+                }
+            }
+
+            modal.style.zIndex = originalZ;
+            modal.style.background = originalBg; // 復元
+
+            if (highlightedEl) {
+                highlightedEl.classList.remove('guide-highlight');
+            }
+            overlay.style.display = 'none';
+        }
+
+        function showGuideEndPopup() {
+            return new Promise(resolve => {
+                const modal = document.getElementById('alert-modal');
+                const overlay = document.getElementById('guide-overlay');
+                overlay.style.display = 'block';
+
+                modal.style.zIndex = '3100';
+                modal.style.background = 'transparent'; // 背景透明化
+
+                // プレイガイド用の幅広クラスを追加
+                const modalContent = modal.querySelector('.modal-content');
+                if (modalContent) modalContent.classList.add('guide-mode-content');
+
+                document.getElementById('alert-title').textContent = "プレイガイド";
+                document.getElementById('alert-message').textContent = "これでプレイガイドを終わります";
+
+                const okBtn = document.getElementById('alert-ok');
+                const newOk = okBtn.cloneNode(true);
+                newOk.textContent = "スタートへ戻る";
+
+                okBtn.parentNode.replaceChild(newOk, okBtn);
+
+                newOk.onclick = () => {
+                    location.reload(); // リロードしてタイトルへ
+                    resolve();
+                };
+
+                modal.style.display = 'block';
+            });
+        }
+
+        function closeGuide() {
+            closeModal('guide-modal');
+        }
+
+        // === ゲーム開始
+
+    </script>
+
+</body>
+
+</html>
