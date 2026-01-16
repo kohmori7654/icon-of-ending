@@ -3290,14 +3290,29 @@
             }
 
             try {
-                const costs = gameState.selectedCards;
-
-                // Remove costs from hand
-                costs.forEach(c => {
-                    gameState.player.hand = gameState.player.hand.filter(h => h.uid !== c.uid);
-                    gameState.player.discard.push(c);
-                });
-
+                // 2. コスト支払い
+                const costs = [...gameState.selectedCards];
+                if (costs.length > 0) {
+                    costs.forEach(c => {
+                        // Check Hand
+                        const isHand = gameState.player.hand.some(h => h.uid === c.uid);
+                        if (isHand) {
+                            gameState.player.hand = gameState.player.hand.filter(h => h.uid !== c.uid);
+                            gameState.player.discard.push(c);
+                        } else {
+                            // Check Field
+                            const isField = gameState.player.field.some(f => f.uid === c.uid);
+                            if (isField) {
+                                // Drop MacGuffin if holding
+                                if (gameState.macguffin.holder === c.uid) {
+                                    gameState.macguffin.holder = null;
+                                }
+                                gameState.player.field = gameState.player.field.filter(f => f.uid !== c.uid);
+                                gameState.player.discard.push(c);
+                            }
+                        }
+                    });
+                }
                 if (action.type === 'summon') {
                     // Animate First
                     animateCardMove(action.card, 'hand-area', 'player-field', async () => {
@@ -3396,8 +3411,17 @@
         }
 
         // 成功率計算: 30% + (Icon * 10%) + (Cost * 5%)
-        function calculateSnatchSuccessRate(cost) {
-            const myIcons = gameState[gameState.currentPlayer].field.filter(c => c && c.type === 'icon').length;
+        // costCards: コストとして支払われるカード（これが場にある場合、イコン数から除外）
+        function calculateSnatchSuccessRate(cost, costCards = []) {
+            let myIcons = gameState[gameState.currentPlayer].field.filter(c => c && c.type === 'icon').length;
+
+            // コストに含まれる場のイコン分を減少
+            if (costCards.length > 0) {
+                const fieldUIDs = gameState[gameState.currentPlayer].field.map(c => c ? c.uid : null).filter(u => u);
+                const costFieldCount = costCards.filter(c => fieldUIDs.includes(c.uid)).length;
+                myIcons = Math.max(0, myIcons - costFieldCount);
+            }
+
             const baseRate = 30;
             const iconBonus = myIcons * 10;
             const costBonus = cost * 5;
@@ -3414,7 +3438,7 @@
                 if (snatchAllBtn) {
                     snatchAllBtn.style.display = 'block';
                     if (gameState.player.hand.length > 0) {
-                        const allRate = calculateSnatchSuccessRate(gameState.player.hand.length);
+                        const allRate = calculateSnatchSuccessRate(gameState.player.hand.length, gameState.player.hand);
                         snatchAllBtn.textContent = `全手札で強奪 (${allRate}%)`;
                         snatchAllBtn.onclick = () => executeSnatchAll();
                         snatchAllBtn.disabled = false;
@@ -3426,7 +3450,7 @@
 
                 const selectedCount = gameState.selectedCards.length;
                 if (selectedCount >= 1) {
-                    const successRate = calculateSnatchSuccessRate(selectedCount);
+                    const successRate = calculateSnatchSuccessRate(selectedCount, gameState.selectedCards);
                     btn.textContent = `強奪実行 (${selectedCount}枚 / 成功率${successRate}%)`;
                     btn.disabled = false;
                     btn.onclick = () => executeSnatchWithSelectedCards();
@@ -3452,17 +3476,32 @@
         async function executeSnatchWithSelectedCards() {
             const selectedCards = gameState.selectedCards;
             const cost = selectedCards.length;
-            const successRate = calculateSnatchSuccessRate(cost);
+            const successRate = calculateSnatchSuccessRate(cost, selectedCards);
 
             // 状態をリセット
             gameState.waitingForAction = null;
             gameState.pendingAction = null;
             hideInstruction();
 
-            // コストを支払う（選択された手札を消費）
+            // コストを支払う（手札・場から消費）
             selectedCards.forEach(c => {
-                gameState.player.hand = gameState.player.hand.filter(h => h.uid !== c.uid);
-                gameState.player.discard.push(c);
+                // Check Hand
+                const isHand = gameState.player.hand.some(h => h.uid === c.uid);
+                if (isHand) {
+                    gameState.player.hand = gameState.player.hand.filter(h => h.uid !== c.uid);
+                    gameState.player.discard.push(c);
+                } else {
+                    // Check Field
+                    const isField = gameState.player.field.some(f => f.uid === c.uid);
+                    if (isField) {
+                        // Drop MacGuffin if holding
+                        if (gameState.macguffin.holder === c.uid) {
+                            gameState.macguffin.holder = null;
+                        }
+                        gameState.player.field = gameState.player.field.filter(f => f.uid !== c.uid);
+                        gameState.player.discard.push(c);
+                    }
+                }
             });
             gameState.selectedCards = [];
             logAction(`強奪コスト: ${cost}枚消費（成功率: ${successRate}%）`);
@@ -3883,6 +3922,17 @@
             }
 
             // Clicking My Icon
+            // Allow selection for Cost Payment
+            if (gameState.waitingForAction === 'cost_payment' || gameState.waitingForAction === 'snatch_cost_selection') {
+                // Prevent selecting the card itself if acting (though usually acting card is in hand or transient)
+                if (gameState.pendingAction && gameState.pendingAction.card && gameState.pendingAction.card.uid === card.uid) {
+                    return;
+                }
+                toggleCardSelection(card);
+                renderAll();
+                return;
+            }
+
             if (gameState.waitingForAction === 'snatch_target_selection') {
                 const result = await showCustomConfirm('強奪確認', `【${card.name}】にマクガフィンを保持させますか？`);
                 if (result) {
@@ -4264,7 +4314,8 @@
                     // Add click handler for Field Interaction
                     el.onclick = () => handleFieldCardClick(card, who);
                     // Add pointer cursor if interaction valid
-                    if (who === 'player' && (gameState.waitingForAction === 'snatch_target_selection' || (gameState.currentPlayer === 'player' && card.id === 'pe_icon_patriot'))) {
+                    const isCostSelection = (gameState.waitingForAction === 'cost_payment' || gameState.waitingForAction === 'snatch_cost_selection');
+                    if (who === 'player' && (gameState.waitingForAction === 'snatch_target_selection' || isCostSelection || (gameState.currentPlayer === 'player' && card.id === 'pe_icon_patriot'))) {
                         el.style.cursor = 'pointer';
                         el.style.border = '2px solid gold';
                     }
