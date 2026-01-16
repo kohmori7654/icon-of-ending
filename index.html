@@ -4414,30 +4414,25 @@
 
             const filename = `battle_log_${year}${month}${day}_${hour}${minute}.txt`;
 
-            // Blob approach with fallback for Chrome compatibility
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            // Add BOM for Windows compatibility and use octet-stream to force download behavior in Chrome
+            const blob = new Blob(["\uFEFF" + content], { type: 'application/octet-stream' });
 
-            // Try using Blob URL first (works better on http://)
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = filename;
             a.style.display = 'none';
 
-            // Chrome on file:// protocol workaround: use target="_blank" to trigger download dialog
-            if (window.location.protocol === 'file:' && navigator.userAgent.includes('Chrome')) {
-                // For Chrome on local files, show save dialog prompt
-                a.target = '_blank';
-            }
-
+            // Workaround for some browsers not firing click if not in DOM
             document.body.appendChild(a);
+
             a.click();
 
-            // Cleanup
+            // Extended cleanup timeout to ensure download starts on slow systems
             setTimeout(() => {
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-            }, 100);
+            }, 10000);
         }
 
         function showPhase(name) {
