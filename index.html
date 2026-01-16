@@ -2600,15 +2600,18 @@
             gameState.phase = 'war';
             logAction('=== ゲーム開始 ===');
 
-            // Randomly decide starting player
+            // Randomly decide starting player (Force Player in Guide Mode)
             const startCheck = Math.random();
-            if (startCheck < 0.5) {
+            if (gameState.isGuideMode || startCheck < 0.5) {
                 logAction('先攻はあなたです');
                 gameState.firstPlayer = 'player';
-                // Show Popup
-                showCustomAlert("ゲーム開始", "あなたが先攻です。").then(() => {
+                if (gameState.isGuideMode) {
                     startPlayerTurn();
-                });
+                } else {
+                    showCustomAlert("ゲーム開始", "あなたが先攻です。").then(() => {
+                        startPlayerTurn();
+                    });
+                }
             } else {
                 logAction('先攻はCPUです');
                 gameState.firstPlayer = 'cpu';
@@ -4439,6 +4442,17 @@
             renderField('cpu');
             renderHand();
             renderStats();
+
+            // MacGuffin Visibility
+            const centerMac = document.getElementById('center-macguffin');
+            if (gameState.macguffin.holder === null) {
+                centerMac.style.display = 'flex';
+                // Ensure img is visible
+                const img = centerMac.querySelector('.macguffin-img');
+                if (img) img.style.display = 'block';
+            } else {
+                centerMac.style.display = 'none';
+            }
         }
 
         function renderField(who) {
@@ -4875,7 +4889,7 @@
         }
 
         async function runGuideDraftPhase() {
-            await showGuideAlert("ここでデッキ枚数が13枚になるまで\nカードを選択してください");
+            await showGuideAlert("ここでデッキ枚数が13枚になるまで、カードを選択してください\n\nチュートリアルのため自動で選ばれます");
 
             // 自動ドラフト: 13枚になるまで
             const targetCount = 13;
@@ -4955,7 +4969,7 @@
 
             // 2. イコン展開説明
             // ハイライト: プレイヤーの手札エリア全体または特定のカード
-            await showGuideAlert("手札からイコンを出してみましょう\n\nイコンは手札から場へドラッグアンドドロップで出せます", "#player-hand-container");
+            await showGuideAlert("手札からイコンを出してみましょう\n\nイコンは手札から場へドラッグアンドドロップで出せます", "#hand-area");
 
             // 3. 自動イコン召喚（最低コスト）
             const icons = gameState.player.hand.filter(c => c.type === 'icon');
@@ -5019,7 +5033,7 @@
 
             // 5.5 ファブラ説明
             // 手札にファブラがあれば、コストを支払い実行することができます
-            await showGuideAlert("手札にファブラがあれば、コストを支払い実行することができます\n\nファブラは使い切りの強力な呪文です\nファブラも手札から場へドラッグアンドドロップで使用することが出来ます", "#player-hand-container");
+            await showGuideAlert("手札にファブラがあれば、コストを支払い実行することができます\n\nファブラは使い切りの強力な呪文です\nファブラも手札から場へドラッグアンドドロップで使用することが出来ます", "#hand-area");
 
             // 6. ターン終了説明
             await showGuideAlert("ターンを終了します\n\nイコンがマクガフィンを保持していた場合、勝利点を得ることができます", "#end-turn-btn");
