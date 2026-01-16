@@ -1613,7 +1613,16 @@
 
             if (!fromEl || !toZone) {
                 console.warn('[Animation] Card elements not found');
-                if (callback) callback();
+                // Ensure callback is called to reset state
+                if (callback) {
+                    try {
+                        callback();
+                    } catch (e) {
+                        console.error('[Animation] Callback error:', e);
+                        // Try to reset state if global available? 
+                        if (typeof resetActionState === 'function') resetActionState();
+                    }
+                }
                 return;
             }
 
@@ -1928,7 +1937,7 @@
                     <h3>基本用語</h3>
                     <ul>
                         <li><strong>イコン</strong>: 場に出して戦うユニットカード。</li>
-                        <li><strong>ファブラ</strong>: 使い切りの効果カード。</li>
+                        <li><strong>ファブラ</strong>: 使い切りの効果カード。1ターンに同名カードは1枚のみ使用か。</li>
                         <li><strong>マクガフィン</strong>: これを奪い合うキーアイテム。</li>
                         <li><strong>コスト</strong>: カードを使用するために手札から捨てる枚数。</li>
                         <li><strong>時計</strong>: 終末時計を増やす（+）か減らす（-）数値。
@@ -2437,12 +2446,38 @@
 
             gameState.phase = 'war';
             logAction('=== ゲーム開始 ===');
-            startPlayerTurn();
+            gameState.phase = 'war';
+            logAction('=== ゲーム開始 ===');
+
+            // Randomly decide starting player
+            const startCheck = Math.random();
+            if (startCheck < 0.5) {
+                logAction('先攻はあなたです');
+                gameState.firstPlayer = 'player';
+                // Show Popup
+                showCustomAlert("ゲーム開始", "あなたが先攻です。").then(() => {
+                    startPlayerTurn();
+                });
+            } else {
+                logAction('先攻はCPUです');
+                gameState.firstPlayer = 'cpu';
+                showCustomAlert("ゲーム開始", "CPUが先攻です。").then(() => {
+                    startCpuTurn();
+                });
+            }
         }
 
         // === ターンフロー ===
         async function startPlayerTurn() {
-            console.log('[startPlayerTurn] Called. Turn:', gameState.turnCount + 1);
+            console.log(`[startPlayerTurn] Called. Turn: ${gameState.turnCount}`);
+
+            // Force reset state to prevent stuck actions
+            gameState.actionInProgress = false;
+            gameState.confirmModalOpen = false;
+            gameState.waitingForAction = null;
+            gameState.snatchInProgress = false;
+            document.getElementById('confirm-modal').style.display = 'none';
+
             gameState.currentPlayer = 'player';
             gameState.turnCount++;
 
@@ -2458,7 +2493,7 @@
             gameState.snatchBlocked = false;
             gameState.player.protectedUntilNextTurn = false;
             gameState.fabulasUsedThisTurn = []; // 同名ファブラ制限リセット
-            gameState.snatchInProgress = false; // 強奪処理フラグリセット
+            // gameState.snatchInProgress = false; // 強奪処理フラグリセット // Moved to explicit reset above
             gameState.autoEndTurnPending = false; // 自動ターン終了待機フラグリセット
 
             // Queen Trigger
@@ -2488,7 +2523,7 @@
             console.log('[startPlayerTurn] Turn Count check:', gameState.turnCount);
             if (gameState.turnCount === 1) {
                 // Turn 1: Small buffer then Synch-like draw
-                console.log('[startPlayerTurn] Turn 1: Setting timeout 50ms');
+                console.log('[startPlayerTurn] Setting timeout 50ms for Turn 1 draw.');
                 setTimeout(() => {
                     console.log('[startPlayerTurn] Timeout fired (Turn 1). Calling drawStep.');
                     drawStep('player');
@@ -2641,7 +2676,7 @@
             setTimeout(startCpuTurn, 200);
         }
 
-        function cpuTakeTurn() {
+        async function cpuTakeTurn() {
             const cpu = gameState.cpu;
 
             // ヘルパー: カードをプレイできるかチェック
@@ -2677,14 +2712,16 @@
             }
 
             // ヘルパー: ファブラを1枚プレイ
-            function playFabula() {
+            async function playFabula() {
                 const fabulas = cpu.hand.filter(c => c.type === 'fabula' && canPlayCard(c));
                 if (fabulas.length > 0) {
                     const fabula = fabulas[0];
                     playCard(fabula);
                     cpu.discard.push(fabula);
                     logAction(`CPUが【${fabula.name}】を発動`);
-                    resolveEffect(fabula, 'cpu');
+                    try {
+                        await resolveEffect(fabula, 'cpu');
+                    } catch (e) { console.error(e); }
                     return true;
                 }
                 return false;
@@ -2695,6 +2732,10 @@
                 // CPUがすでに保持していれば不要
                 const cpuHoldsIt = cpu.field.some(c => c && c.uid === gameState.macguffin.holder);
                 if (cpuHoldsIt) return false;
+
+                // 先攻1ターン目は強奪禁止
+                if (gameState.turnCount === 1 && gameState.firstPlayer === 'cpu') return false;
+
                 if (gameState.snatchBlocked) return false;
                 if (cpu.field.length === 0) return false;
 
@@ -2780,7 +2821,7 @@
             }
 
             // 4. ファブラ使用 (コスト足りる限り)
-            if (playFabula()) {
+            if (await playFabula()) {
                 renderAll();
                 setTimeout(cpuTakeTurn, 1500);
                 return;
@@ -3084,7 +3125,7 @@
                 gameState.player.discard.push(action.card);
                 logAction(`【${action.card.name}】を発動`);
                 renderAll();
-                resolveEffect(action.card, 'player');
+                await resolveEffect(action.card, 'player');
 
             } else if (action.type === 'snatch') {
                 // Execute snatch and return early
@@ -3243,71 +3284,84 @@
             hideInstruction();
 
             const action = gameState.pendingAction;
-            if (!action) return;
-
-            const costs = gameState.selectedCards;
-
-            // Remove costs from hand
-            costs.forEach(c => {
-                gameState.player.hand = gameState.player.hand.filter(h => h.uid !== c.uid);
-                gameState.player.discard.push(c);
-            });
-
-            if (action.type === 'summon') {
-                // Animate First
-                animateCardMove(action.card, 'hand-area', 'player-field', async () => {
-                    // Move card from hand to field
-                    // This part is executed AFTER the animation completes.
-                    gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
-                    gameState.player.field.push(action.card);
-                    logAction(`【${action.card.name}】を召喚`);
-
-                    renderAll(); // Render after data update
-
-                    // Commander (kn_icon_commander) Trigger
-                    if (action.card.id === 'kn_icon_commander') {
-                        if (gameState.player.hand.length > 0) {
-                            const result = await showCustomConfirm("【前線指揮官】効果", "手札1枚を消費してコスト0で強奪を行いますか？");
-                            if (result) {
-                                const disc = gameState.player.hand.pop();
-                                gameState.player.discard.push(disc);
-                                gameState.snatchCostOverride = 0;
-                                logAction("前線指揮官の号令！強奪を開始します");
-                                setTimeout(() => startSnatchMode(), 500);
-                            }
-                        }
-                    }
-                });
-
-            } else if (action.type === 'fabula') {
-                // Animate to center/field or just dissolve?
-                // User asked for "when putting icon on field". Fabula goes to discard.
-                // Let's animate it to center area or discard pile?
-                // For now, let's keep it simple or animate strictly for Icons as requested.
-                // User said "When putting Icon on field... show as if moving from hand".
-                // I will add animation for Fabula too for consistency (hand -> discard area?)
-                // Or just keep logic simple.
-
-                // Move card from hand to discard and resolve effect
-                gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
-                gameState.player.discard.push(action.card);
-                logAction(`【${action.card.name}】を発動`);
-
-                // 同名ファブラ使用制限のために記録
-                gameState.fabulasUsedThisTurn.push(action.card.id);
-
-                renderAll();
-                resolveEffect(action.card, 'player');
-
-            } else if (action.type === 'snatch') {
-                // Execute snatch and return early - executeSnatch manages its own state
-                gameState.pendingAction = null;
-                gameState.selectedCards = [];
-                executeSnatch();
-                return; // Don't reset waitingForAction - snatch needs it for target selection
+            if (!action) {
+                gameState.actionInProgress = false;
+                return;
             }
 
-            // Reset state (only for non-snatch actions)
+            try {
+                const costs = gameState.selectedCards;
+
+                // Remove costs from hand
+                costs.forEach(c => {
+                    gameState.player.hand = gameState.player.hand.filter(h => h.uid !== c.uid);
+                    gameState.player.discard.push(c);
+                });
+
+                if (action.type === 'summon') {
+                    // Animate First
+                    animateCardMove(action.card, 'hand-area', 'player-field', async () => {
+                        try {
+                            // Move card from hand to field
+                            gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
+                            gameState.player.field.push(action.card);
+                            logAction(`【${action.card.name}】を召喚`);
+
+                            renderAll(); // Render after data update
+
+                            // Commander (kn_icon_commander) Trigger
+                            if (action.card.id === 'kn_icon_commander') {
+                                if (gameState.player.hand.length > 0) {
+                                    const result = await showCustomConfirm("【前線指揮官】効果", "手札1枚を消費してコスト0で強奪を行いますか？");
+                                    if (result) {
+                                        const disc = gameState.player.hand.pop();
+                                        gameState.player.discard.push(disc);
+                                        gameState.snatchCostOverride = 0;
+                                        logAction("前線指揮官の号令！強奪を開始します");
+                                        setTimeout(() => startSnatchMode(), 500);
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            console.error("Error in summon animation callback:", e);
+                        } finally {
+                            resetActionState();
+                        }
+                    });
+                    return; // resetActionState is called in callback
+
+                } else if (action.type === 'fabula') {
+                    // Move card from hand to discard and resolve effect
+                    gameState.player.hand = gameState.player.hand.filter(h => h.uid !== action.card.uid);
+                    gameState.player.discard.push(action.card);
+                    logAction(`【${action.card.name}】を発動`);
+
+                    // 同名ファブラ使用制限のために記録
+                    gameState.fabulasUsedThisTurn.push(action.card.id);
+
+                    renderAll();
+                    resolveEffect(action.card, 'player');
+
+                } else if (action.type === 'snatch') {
+                    // Execute snatch and return early - executeSnatch manages its own state
+                    gameState.pendingAction = null;
+                    gameState.selectedCards = [];
+                    executeSnatch();
+                    return; // Don't reset waitingForAction - snatch needs it for target selection
+                }
+
+            } catch (error) {
+                console.error("Error in executeConfirmedAction:", error);
+                logAction("エラー発生: " + error.message);
+            } finally {
+                // If not summon (which handles async reset) and not snatch (which handles internal reset)
+                if (action.type !== 'summon' && action.type !== 'snatch') {
+                    resetActionState();
+                }
+            }
+        }
+
+        function resetActionState() {
             gameState.pendingAction = null;
             gameState.waitingForAction = null;
             gameState.selectedCards = [];
@@ -3323,6 +3377,12 @@
                 return;
             }
 
+            // 先攻1ターン目は強奪禁止
+            if (gameState.turnCount === 1 && gameState.firstPlayer === 'player') {
+                showCustomAlert('警告', '先攻の最初のターンは強奪を行えません。');
+                return;
+            }
+
             gameState.snatchInProgress = true; // 強奪処理開始（コスト選択〜結果まで）
 
             // 強奪コスト選択モードを開始（手札選択形式）
@@ -3335,9 +3395,13 @@
             renderAll();
         }
 
-        // 成功率計算: 50% + (cost) * 5%、最大100%
+        // 成功率計算: 30% + (Icon * 10%) + (Cost * 5%)
         function calculateSnatchSuccessRate(cost) {
-            return Math.min(100, 50 + (cost) * 5);
+            const myIcons = gameState[gameState.currentPlayer].field.filter(c => c && c.type === 'icon').length;
+            const baseRate = 30;
+            const iconBonus = myIcons * 10;
+            const costBonus = cost * 5;
+            return Math.min(100, baseRate + iconBonus + costBonus);
         }
 
         // 強奪ボタンを更新（選択枚数と成功率を表示）
@@ -3465,7 +3529,7 @@
             renderAll();
         }
 
-        function resolveEffect(card, owner) {
+        async function resolveEffect(card, owner) {
             const opponent = owner === 'player' ? 'cpu' : 'player';
 
             switch (card.id) {
@@ -3542,7 +3606,7 @@
                             logAction(`捨て札から【${icon.name}】を場に出した`);
 
                             if (owner === 'player') {
-                                if (confirm("マクガフィンを移動させますか？")) {
+                                if (await showCustomConfirm("効果発動", "マクガフィンを移動させますか？")) {
                                     const oldHolder = gameState.macguffin.holder;
                                     animateMacGuffinMove(oldHolder, icon.uid, () => {
                                         gameState.macguffin.holder = icon.uid;
@@ -4721,7 +4785,7 @@
             }
 
             // 4. 強奪説明
-            await showGuideAlert("場にイコンがいる場合、マクガフィンの強奪が行えます\n強奪の成功率は捨てた手札の枚数により変動します", "#action-execute-btn");
+            await showGuideAlert("場にイコンがいる場合、マクガフィンの強奪が行えます\n強奪の成功率は場のイコンの数と、捨てた手札の枚数により変動します", "#action-execute-btn");
 
             // 5. 強奪実行
             // 強奪モード開始
