@@ -336,6 +336,9 @@
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
             border: 1px solid #ffd700;
             font-size: 1.1rem;
+            position: relative;
+            z-index: 20;
+            /* Ensure VP is above hand */
         }
 
         /* Rich Stats */
@@ -1383,6 +1386,49 @@
             animation: pulse 1.5s infinite;
         }
 
+        /* Pending Summon (Ghost Card) */
+        .pending-summon {
+            opacity: 0.6;
+            border: 2px dashed var(--gold) !important;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* CPU Hand Visual - Top 1/4 Visible & Centered */
+        .cpu-hand-visual {
+            display: flex;
+            gap: 2px;
+            align-items: flex-start;
+            /* Align to top */
+            height: 35px;
+            /* Show only top ~1/4 */
+            overflow: hidden;
+            margin-left: auto !important;
+            /* Push to center/right */
+            margin-right: auto !important;
+            padding-top: 5px;
+            position: relative;
+            z-index: 10;
+            /* Lower than VP */
+            transform: translateY(15px);
+            /* Move down slightly */
+        }
+
+        .cpu-hand-card {
+            width: 40px;
+            height: 60px;
+            /* Full card height */
+            background: linear-gradient(135deg, #444 0%, #222 100%);
+            border: 1px solid #666;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            /* Optional: Add card back pattern or image here */
+            background-image: repeating-linear-gradient(45deg,
+                    rgba(255, 255, 255, 0.05) 0px,
+                    rgba(255, 255, 255, 0.05) 2px,
+                    transparent 2px,
+                    transparent 4px);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .start-title {
@@ -1992,8 +2038,7 @@
                             <button class="inspect-btn" onclick="openDiscardList('cpu')">DISC</button>
                         </div>
                         <span class="player-vp" style="margin-left: 10px;">VP: <span id="cpu-vp">0</span></span>
-                        <div id="cpu-hand-visual" class="cpu-hand-visual"
-                            style="margin-left: 20px; display: flex; gap: 5px; align-items: center;"></div>
+                        <div id="cpu-hand-visual" class="cpu-hand-visual"></div>
                     </div>
                     <div class="field-slots" id="cpu-field"
                         style="position:relative; z-index:10; background:rgba(0,0,0,0.2); border-radius:8px;"></div>
