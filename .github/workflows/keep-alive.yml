@@ -1,0 +1,35 @@
+name: Prevent 60-day Disablement
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 毎日 UTC 0:00 (日本時間 9:00)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Auto Commit if inactive
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          last_commit_date=$(git log -1 --format=%ct)
+          current_date=$(date +%s)
+          days_since_last_commit=$(( (current_date - last_commit_date) / 86400 ))
+          
+          echo "Days since last commit: $days_since_last_commit"
+          
+          if [ "$days_since_last_commit" -gt 50 ]; then
+            echo "Committing to keep workflow alive..."
+            # 【重要】[skip ci] を入れることで、Vercelの無駄なビルドを防ぎます
+            git commit --allow-empty -m "Automated activity to keep workflow alive [skip ci]"
+            git push
+          else
+            echo "No need to commit yet."
+          fi
